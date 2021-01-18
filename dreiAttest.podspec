@@ -1,7 +1,7 @@
 Pod::Spec.new do |s|
   s.name             = "dreiAttest"
   s.version          = "0.0.1"
-  s.summary          = ""
+  s.summary          = "Ensure we're running on a real device."
   s.homepage         = "https://github.com/dreipol/dreiAttest-ios"
   s.license          = { type: 'MIT', file: 'LICENSE' }
   s.author           = { "dreipol GmbH" => "dev@dreipol.ch" }

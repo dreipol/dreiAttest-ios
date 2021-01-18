@@ -1,0 +1,16 @@
+PODS:
+  - dreiAttest (0.0.1)
+
+DEPENDENCIES:
+  - dreiAttest (from `../..`)
+
+EXTERNAL SOURCES:
+  dreiAttest:
+    :path: "../.."
+
+SPEC CHECKSUMS:
+  dreiAttest: f9e714454dfeb26b13b2287063e467f25a2c2ea9
+
+PODFILE CHECKSUM: ea74e130209b35da6016e95150b2128f964b6aec
+
+COCOAPODS: 1.10.1
