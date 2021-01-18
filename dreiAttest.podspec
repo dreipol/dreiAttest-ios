@@ -11,7 +11,7 @@ Pod::Spec.new do |s|
   s.requires_arc = true
   s.ios.source_files = 'Sources/dreiAttest/**/*.{swift}'
   s.swift_version = '5.0'
-  s.ios.frameworks = 'Foundation'
+  s.ios.frameworks = 'Foundation', 'DeviceCheck'
   # s.dependency 'Eureka', '~> 4.0'
   s.info_plist = {
     'CFBundleIdentifier' => 'ch.dreipol.dreiattest'

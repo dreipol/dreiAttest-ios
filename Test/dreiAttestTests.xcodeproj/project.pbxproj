@@ -8,14 +8,18 @@
 
 /* Begin PBXBuildFile section */
 		C74405EF25B56CDB00FC30B2 /* dreiAttestTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C74405EE25B56CDB00FC30B2 /* dreiAttestTests.swift */; };
-		C744060925B56E4100FC30B2 /* AttestService.swift in Sources */ = {isa = PBXBuildFile; fileRef = C744060825B56E4100FC30B2 /* AttestService.swift */; };
+		C744063225B5722B00FC30B2 /* AttestService.swift in Sources */ = {isa = PBXBuildFile; fileRef = C744063125B5722B00FC30B2 /* AttestService.swift */; };
+		C744063525B5760B00FC30B2 /* AttestError.swift in Sources */ = {isa = PBXBuildFile; fileRef = C744063425B5760B00FC30B2 /* AttestError.swift */; };
+		C744063825B5773900FC30B2 /* UserDefaults+dreiAttest.swift in Sources */ = {isa = PBXBuildFile; fileRef = C744063725B5773900FC30B2 /* UserDefaults+dreiAttest.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
 		C74405EB25B56CDB00FC30B2 /* dreiAttestTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = dreiAttestTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		C74405EE25B56CDB00FC30B2 /* dreiAttestTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = dreiAttestTests.swift; sourceTree = "<group>"; };
 		C74405F025B56CDB00FC30B2 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		C744060825B56E4100FC30B2 /* AttestService.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AttestService.swift; sourceTree = "<group>"; };
+		C744063125B5722B00FC30B2 /* AttestService.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AttestService.swift; sourceTree = "<group>"; };
+		C744063425B5760B00FC30B2 /* AttestError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AttestError.swift; sourceTree = "<group>"; };
+		C744063725B5773900FC30B2 /* UserDefaults+dreiAttest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UserDefaults+dreiAttest.swift"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -32,7 +36,7 @@
 		C74405E025B56CB500FC30B2 = {
 			isa = PBXGroup;
 			children = (
-				C744060625B56E4100FC30B2 /* Sources */,
+				C744063025B5722B00FC30B2 /* dreiAttest */,
 				C74405ED25B56CDB00FC30B2 /* dreiAttestTests */,
 				C74405EC25B56CDB00FC30B2 /* Products */,
 			);
@@ -55,21 +59,15 @@
 			path = dreiAttestTests;
 			sourceTree = "<group>";
 		};
-		C744060625B56E4100FC30B2 /* Sources */ = {
+		C744063025B5722B00FC30B2 /* dreiAttest */ = {
 			isa = PBXGroup;
 			children = (
-				C744060725B56E4100FC30B2 /* dreiAttest */,
+				C744063125B5722B00FC30B2 /* AttestService.swift */,
+				C744063425B5760B00FC30B2 /* AttestError.swift */,
+				C744063725B5773900FC30B2 /* UserDefaults+dreiAttest.swift */,
 			);
-			name = Sources;
-			path = ../Sources;
-			sourceTree = "<group>";
-		};
-		C744060725B56E4100FC30B2 /* dreiAttest */ = {
-			isa = PBXGroup;
-			children = (
-				C744060825B56E4100FC30B2 /* AttestService.swift */,
-			);
-			path = dreiAttest;
+			name = dreiAttest;
+			path = ../Sources/dreiAttest;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -139,8 +137,10 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				C744060925B56E4100FC30B2 /* AttestService.swift in Sources */,
+				C744063225B5722B00FC30B2 /* AttestService.swift in Sources */,
 				C74405EF25B56CDB00FC30B2 /* dreiAttestTests.swift in Sources */,
+				C744063525B5760B00FC30B2 /* AttestError.swift in Sources */,
+				C744063825B5773900FC30B2 /* UserDefaults+dreiAttest.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
