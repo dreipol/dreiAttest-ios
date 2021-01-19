@@ -10,7 +10,9 @@ import XCTest
 class dreiAttestTests: XCTestCase {
 
     override func setUpWithError() throws {
-        UserDefaults.resetStandardUserDefaults()
+        for key in UserDefaults.standard.dictionaryRepresentation().keys {
+            UserDefaults.standard.removeObject(forKey: key)
+        }
     }
 
     override func tearDownWithError() throws {
@@ -64,18 +66,28 @@ class dreiAttestTests: XCTestCase {
         let expectation4 = XCTestExpectation()
         service1.getKeyId(callback: {_ in
             expectation1.fulfill()
-        }, error: {_ in })
+        }, error: {error in
+            XCTFail(error.debugDescription)
+        })
         service1.getKeyId(callback: {_ in
             expectation2.fulfill()
-        }, error: {_ in })
+        }, error: {error in
+            XCTFail(error.debugDescription)
+        })
+        wait(for: [expectation1, expectation2], timeout: 10)
+
         service2.getKeyId(callback: {_ in
             expectation3.fulfill()
-        }, error: {_ in })
+        }, error: {error in
+            XCTFail(error.debugDescription)
+        })
         service3.getKeyId(callback: {_ in
             expectation4.fulfill()
-        }, error: {_ in })
+        }, error: {error in
+            XCTFail(error.debugDescription)
+        })
 
-        wait(for: [expectation1, expectation2, expectation3, expectation4], timeout: 10)
+        wait(for: [expectation3, expectation4], timeout: 10)
         XCTAssert(service1.networkHelper.registerCount == 1)
         XCTAssert(service2.networkHelper.registerCount == 0)
         XCTAssert(service3.networkHelper.registerCount == 1)

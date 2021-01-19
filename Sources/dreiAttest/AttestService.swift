@@ -8,6 +8,8 @@
 import Foundation
 import DeviceCheck
 
+private let keyGenerationLock = NSLock()
+
 public final class AttestService<NetworkHelper: _NetworkHelper> {
     public let uid: String
 
@@ -39,10 +41,29 @@ public final class AttestService<NetworkHelper: _NetworkHelper> {
     }
 
     func getKeyId(callback: @escaping (String) -> Void, error: @escaping (Error?) -> Void) {
-        guard let keyId = UserDefaults.standard.keyIds[uid] else {
-            generateNewKey(callback: { keyId in
-                self.networkHelper.registerNewKey(keyId: keyId, callback: { callback(keyId) }, error: error)
-            }, error: error)
+        guard let keyId = UserDefaults.standard.keyIds[serviceUid] else {
+            // Dispatch so we don't block the main thread
+            DispatchQueue.global(qos: .userInitiated).async { [weak self] in
+                guard let self = self else { return }
+                keyGenerationLock.lock()
+                if let keyId = UserDefaults.standard.keyIds[self.serviceUid] {
+                    keyGenerationLock.unlock()
+                    callback(keyId)
+                    return
+                }
+
+                let unlockingErrorHandler = { (err: Error?) in
+                    keyGenerationLock.unlock()
+                    error(err)
+                }
+                // once we commit to generating a new key we want to complete the operation so we capture self strongly
+                self.generateNewKey(callback: { keyId in
+                    self.networkHelper.registerNewKey(keyId: keyId, callback: {
+                        keyGenerationLock.unlock()
+                        callback(keyId)
+                    }, error: unlockingErrorHandler)
+                }, error: unlockingErrorHandler)
+            }
             return
         }
 
