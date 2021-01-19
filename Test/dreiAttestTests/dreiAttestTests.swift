@@ -18,7 +18,9 @@ class dreiAttestTests: XCTestCase {
     }
 
     func testUserDefaultKeys() {
-        XCTAssert(Key.uid("test").key == "dreiAttestTests.Key.uid(\"test\")")
+        XCTAssert(Key.uid("test1").key != Key.uid("test2").key)
+        XCTAssert(Key.uid("test1").key == Key.uid("test1").key)
+        XCTAssert(Key.uid("test1").key != Key.keyId(uid: "test1").key)
     }
 
     func testUidGeneration() {
@@ -43,5 +45,39 @@ class dreiAttestTests: XCTestCase {
 
         // reload
         XCTAssert(UserDefaults.standard.serviceUid(for: user1) == uid1)
+    }
+
+    func testKeyGeneration() throws {
+        guard let testURL = URL(string: "https://dreipol.ch") else {
+            XCTFail()
+            return
+        }
+
+        let config = Config(networkHelperType: KeyCountingNetworkHelper.self)
+        let service1 = try AttestService(baseAddress: testURL, uid: "user1", config: config)
+        let service2 = try AttestService(baseAddress: testURL, uid: "user1", config: config)
+        let service3 = try AttestService(baseAddress: testURL, uid: "user2", config: config)
+
+        let expectation1 = XCTestExpectation()
+        let expectation2 = XCTestExpectation()
+        let expectation3 = XCTestExpectation()
+        let expectation4 = XCTestExpectation()
+        service1.getKeyId(callback: {_ in
+            expectation1.fulfill()
+        }, error: {_ in })
+        service1.getKeyId(callback: {_ in
+            expectation2.fulfill()
+        }, error: {_ in })
+        service2.getKeyId(callback: {_ in
+            expectation3.fulfill()
+        }, error: {_ in })
+        service3.getKeyId(callback: {_ in
+            expectation4.fulfill()
+        }, error: {_ in })
+
+        wait(for: [expectation1, expectation2, expectation3, expectation4], timeout: 10)
+        XCTAssert(service1.networkHelper.registerCount == 1)
+        XCTAssert(service2.networkHelper.registerCount == 0)
+        XCTAssert(service3.networkHelper.registerCount == 1)
     }
 }
