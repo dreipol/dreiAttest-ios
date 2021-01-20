@@ -10,7 +10,7 @@ import Foundation
 class KeyCountingNetworkHelper: _NetworkHelper {
     var registerCount = 0
 
-    required init(baseUrl: URL) {}
+    required init(baseUrl: URL, sessionConfiguration: URLSessionConfiguration) {}
 
     func registerNewKey(keyId: String, uid: String, callback: @escaping () -> Void, error: @escaping (Error?) -> Void) {
         registerCount += 1

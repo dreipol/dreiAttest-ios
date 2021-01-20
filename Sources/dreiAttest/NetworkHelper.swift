@@ -24,9 +24,14 @@ extension HTTPHeader {
     }
 }
 
+extension Session {
+    // Used to capture reference to session so it is only deinitialized after a request completes
+    func close() {}
+}
+
 // TODO: make sealed if this proposal is ever accepted: https://forums.swift.org/t/sealed-protocols/19118
 public protocol _NetworkHelper {
-    init(baseUrl: URL)
+    init(baseUrl: URL, sessionConfiguration: URLSessionConfiguration)
 
     func registerNewKey(keyId: String, uid: String, callback: @escaping () -> Void, error: @escaping (Error?) -> Void)
 }
@@ -34,12 +39,14 @@ public protocol _NetworkHelper {
 public struct DefaultNetworkHelper: _NetworkHelper {
     let baseUrl: URL
     let service = DCAppAttestService.shared
+    let sessionConfiguration: URLSessionConfiguration
 
     /**
      Do not use!
      */
-    public init(baseUrl: URL) {
+    public init(baseUrl: URL, sessionConfiguration: URLSessionConfiguration) {
         self.baseUrl = baseUrl
+        self.sessionConfiguration = sessionConfiguration
     }
 
     /**
@@ -47,7 +54,7 @@ public struct DefaultNetworkHelper: _NetworkHelper {
      */
     // TODO: make internal when _NetworkHelper is sealed
     public func registerNewKey(keyId: String, uid: String, callback: @escaping () -> Void, error: @escaping (Error?) -> Void) {
-        let session = Session()
+        let session = Session(configuration: sessionConfiguration)
         let getNonceHeaders = HTTPHeaders([.connection(value: "keep-alive"), .contentType("text/plain")])
         session.request(baseUrl.appendingPathComponent("dreiAttest/getNonce"), method: .get, headers: getNonceHeaders)
             .responseString { snonce in
@@ -59,7 +66,7 @@ public struct DefaultNetworkHelper: _NetworkHelper {
                     }
 
                     let nonce = Data(SHA256.hash(data: nonceData))
-                    service.attestKey(keyId, clientDataHash: nonce, completionHandler: { attestation, err in
+                    service.attestKey(keyId, clientDataHash: nonce) { attestation, err in
                         guard err == nil,
                               let attestation = attestation else {
                             error(err)
@@ -69,11 +76,15 @@ public struct DefaultNetworkHelper: _NetworkHelper {
                         do {
                             let headers = HTTPHeaders([.uid(value: uid)])
                             let payload: [String: Any] = ["pubkey": keyId,
-                                                          "attestation": attestation]
-                            var request = try URLRequest(url: baseUrl.appendingPathComponent("dreiAttest/publishKey"), method: .put, headers: headers)
+                                                          "attestation": attestation.base64EncodedString()]
+                            var request = try URLRequest(url: baseUrl.appendingPathComponent("dreiAttest/publishKey"), method: .post, headers: headers)
                             request.httpBody = try JSONSerialization.data(withJSONObject: payload, options: .prettyPrinted)
 
                             session.request(request).response { response in
+                                defer {
+                                    session.close()
+                                }
+
                                 switch response.result {
                                 case .success(let errorData):
                                     if response.response?.statusCode == 200 {
@@ -87,14 +98,14 @@ public struct DefaultNetworkHelper: _NetworkHelper {
                                 case .failure(let err):
                                     error(err)
                                 }
-                            }
+                            }.resume()
                         } catch let err {
                             error(err)
                         }
-                    })
+                    }
                 case .failure(let err):
                     error(err)
                 }
-        }
+        }.resume()
     }
 }

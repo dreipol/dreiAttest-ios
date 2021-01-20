@@ -9,9 +9,12 @@ import Foundation
 
 struct Config<NetworkHelper> {
     let networkHelperType: NetworkHelper.Type
+    let sessionConfiguration: URLSessionConfiguration
 
-    init(networkHelperType: NetworkHelper.Type) {
+    init(networkHelperType: NetworkHelper.Type,
+         sessionConfiguration: URLSessionConfiguration = URLSessionConfiguration.af.default) {
         self.networkHelperType = networkHelperType
+        self.sessionConfiguration = sessionConfiguration
     }
 }
 

@@ -24,7 +24,7 @@ public final class AttestService<NetworkHelper: _NetworkHelper> {
             throw AttestError.notSupported
         }
 
-        networkHelper = config.networkHelperType.init(baseUrl: baseAddress)
+        networkHelper = config.networkHelperType.init(baseUrl: baseAddress, sessionConfiguration: config.sessionConfiguration)
         self.uid = uid
     }
 

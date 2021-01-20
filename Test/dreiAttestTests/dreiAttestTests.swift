@@ -6,6 +6,7 @@
 //
 
 import XCTest
+import Mocker
 
 class dreiAttestTests: XCTestCase {
 
@@ -91,5 +92,39 @@ class dreiAttestTests: XCTestCase {
         XCTAssert(service1.networkHelper.registerCount == 1)
         XCTAssert(service2.networkHelper.registerCount == 0)
         XCTAssert(service3.networkHelper.registerCount == 1)
+    }
+
+    func testKeyRegistration() throws {
+        guard let baseURL = URL(string: "https://dreipol.ch") else {
+            XCTFail()
+            return
+        }
+
+        let configuration = URLSessionConfiguration.af.default
+        configuration.protocolClasses = [MockingURLProtocol.self] + (configuration.protocolClasses ?? [])
+        let service = try AttestService(baseAddress: baseURL, uid: "registration", config: Config(networkHelperType: DefaultNetworkHelper.self, sessionConfiguration: configuration))
+
+        let snonce = UUID().uuidString
+        Mock(url: baseURL.appendingPathComponent("dreiAttest/getNonce"), dataType: .html, statusCode: 200, data: [.get: snonce.data(using: .utf8) ?? Data()])
+            .register()
+        var registration = Mock(url: baseURL.appendingPathComponent("dreiAttest/publishKey"), dataType: .html, statusCode: 200, data: [.post: Data()])
+        registration.onRequest = { _, body in
+            guard let attestationString = body?["attestation"] as? String,
+                  let attestation = Data(base64Encoded: attestationString) else {
+                XCTFail()
+                return
+            }
+            print(attestation)
+        }
+        registration.register()
+
+        let expectation = XCTestExpectation()
+        service.getKeyId(callback: { id in
+            expectation.fulfill()
+        }, error: { error in
+            XCTFail(error.debugDescription)
+        })
+
+        wait(for: [expectation], timeout: 5)
     }
 }
