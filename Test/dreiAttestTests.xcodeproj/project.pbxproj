@@ -3,10 +3,11 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 50;
+	objectVersion = 51;
 	objects = {
 
 /* Begin PBXBuildFile section */
+		4B227468194C2A78259C1F6F /* Pods_dreiAttestTests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 991C2C5B0B9D2746C2CDC2AF /* Pods_dreiAttestTests.framework */; };
 		C74405EF25B56CDB00FC30B2 /* dreiAttestTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C74405EE25B56CDB00FC30B2 /* dreiAttestTests.swift */; };
 		C744063225B5722B00FC30B2 /* AttestService.swift in Sources */ = {isa = PBXBuildFile; fileRef = C744063125B5722B00FC30B2 /* AttestService.swift */; };
 		C744063525B5760B00FC30B2 /* AttestError.swift in Sources */ = {isa = PBXBuildFile; fileRef = C744063425B5760B00FC30B2 /* AttestError.swift */; };
@@ -31,6 +32,8 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		97BBA337BC5EC7F163FF5250 /* Pods-dreiAttestTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-dreiAttestTests.release.xcconfig"; path = "Target Support Files/Pods-dreiAttestTests/Pods-dreiAttestTests.release.xcconfig"; sourceTree = "<group>"; };
+		991C2C5B0B9D2746C2CDC2AF /* Pods_dreiAttestTests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_dreiAttestTests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		C74405EB25B56CDB00FC30B2 /* dreiAttestTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = dreiAttestTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		C74405EE25B56CDB00FC30B2 /* dreiAttestTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = dreiAttestTests.swift; sourceTree = "<group>"; };
 		C74405F025B56CDB00FC30B2 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
@@ -46,6 +49,7 @@
 		C7639B6F25B6D9DC009D2978 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		C77A2CD625B5C29D0039FED4 /* NetworkHelper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkHelper.swift; sourceTree = "<group>"; };
 		C77A2CD925B5C2CF0039FED4 /* Config.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Config.swift; sourceTree = "<group>"; };
+		E14E9FDBA45F7538653C5816 /* Pods-dreiAttestTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-dreiAttestTests.debug.xcconfig"; path = "Target Support Files/Pods-dreiAttestTests/Pods-dreiAttestTests.debug.xcconfig"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -53,6 +57,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				4B227468194C2A78259C1F6F /* Pods_dreiAttestTests.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -66,6 +71,23 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		6E1FF37FE92360B52B1DD34C /* Pods */ = {
+			isa = PBXGroup;
+			children = (
+				E14E9FDBA45F7538653C5816 /* Pods-dreiAttestTests.debug.xcconfig */,
+				97BBA337BC5EC7F163FF5250 /* Pods-dreiAttestTests.release.xcconfig */,
+			);
+			path = Pods;
+			sourceTree = "<group>";
+		};
+		8B68102041E5ACBE44529D1D /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				991C2C5B0B9D2746C2CDC2AF /* Pods_dreiAttestTests.framework */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
 		C74405E025B56CB500FC30B2 = {
 			isa = PBXGroup;
 			children = (
@@ -73,6 +95,8 @@
 				C74405ED25B56CDB00FC30B2 /* dreiAttestTests */,
 				C7639B6525B6D9DB009D2978 /* dreiAttestTestHost */,
 				C74405EC25B56CDB00FC30B2 /* Products */,
+				6E1FF37FE92360B52B1DD34C /* Pods */,
+				8B68102041E5ACBE44529D1D /* Frameworks */,
 			);
 			sourceTree = "<group>";
 		};
@@ -135,9 +159,11 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = C74405F125B56CDB00FC30B2 /* Build configuration list for PBXNativeTarget "dreiAttestTests" */;
 			buildPhases = (
+				395AD2F555D9ED785447F068 /* [CP] Check Pods Manifest.lock */,
 				C74405E725B56CDB00FC30B2 /* Sources */,
 				C74405E825B56CDB00FC30B2 /* Frameworks */,
 				C74405E925B56CDB00FC30B2 /* Resources */,
+				5457F80E921871D07C5505A0 /* [CP] Embed Pods Frameworks */,
 			);
 			buildRules = (
 			);
@@ -222,6 +248,48 @@
 		};
 /* End PBXResourcesBuildPhase section */
 
+/* Begin PBXShellScriptBuildPhase section */
+		395AD2F555D9ED785447F068 /* [CP] Check Pods Manifest.lock */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+				"${PODS_PODFILE_DIR_PATH}/Podfile.lock",
+				"${PODS_ROOT}/Manifest.lock",
+			);
+			name = "[CP] Check Pods Manifest.lock";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+				"$(DERIVED_FILE_DIR)/Pods-dreiAttestTests-checkManifestLockResult.txt",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
+			showEnvVarsInLog = 0;
+		};
+		5457F80E921871D07C5505A0 /* [CP] Embed Pods Frameworks */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-dreiAttestTests/Pods-dreiAttestTests-frameworks-${CONFIGURATION}-input-files.xcfilelist",
+			);
+			name = "[CP] Embed Pods Frameworks";
+			outputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-dreiAttestTests/Pods-dreiAttestTests-frameworks-${CONFIGURATION}-output-files.xcfilelist",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-dreiAttestTests/Pods-dreiAttestTests-frameworks.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
+/* End PBXShellScriptBuildPhase section */
+
 /* Begin PBXSourcesBuildPhase section */
 		C74405E725B56CDB00FC30B2 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
@@ -271,6 +339,7 @@
 		};
 		C74405F225B56CDB00FC30B2 /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = E14E9FDBA45F7538653C5816 /* Pods-dreiAttestTests.debug.xcconfig */;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				CLANG_ANALYZER_NONNULL = YES;
@@ -349,6 +418,7 @@
 		};
 		C74405F325B56CDB00FC30B2 /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 97BBA337BC5EC7F163FF5250 /* Pods-dreiAttestTests.release.xcconfig */;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				CLANG_ANALYZER_NONNULL = YES;
@@ -477,7 +547,7 @@
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				INFOPLIST_FILE = dreiAttestTestHost/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 14.3;
+				IPHONEOS_DEPLOYMENT_TARGET = 14.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -547,7 +617,7 @@
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				INFOPLIST_FILE = dreiAttestTestHost/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 14.3;
+				IPHONEOS_DEPLOYMENT_TARGET = 14.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
