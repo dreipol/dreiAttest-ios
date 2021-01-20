@@ -35,7 +35,6 @@ public final class AttestService<NetworkHelper: _NetworkHelper> {
                 return
             }
 
-            UserDefaults.standard.keyIds[serviceUid] = keyId
             callback(keyId)
         }
     }
@@ -58,7 +57,8 @@ public final class AttestService<NetworkHelper: _NetworkHelper> {
                 }
                 // once we commit to generating a new key we want to complete the operation so we capture self strongly
                 self.generateNewKey(callback: { keyId in
-                    self.networkHelper.registerNewKey(keyId: keyId, callback: {
+                    self.networkHelper.registerNewKey(keyId: keyId, uid: self.serviceUid, callback: {
+                        UserDefaults.standard.keyIds[self.serviceUid] = keyId
                         keyGenerationLock.unlock()
                         callback(keyId)
                     }, error: unlockingErrorHandler)

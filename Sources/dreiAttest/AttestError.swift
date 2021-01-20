@@ -9,4 +9,18 @@ import Foundation
 
 public enum AttestError: Error {
     case notSupported
+    case `internal`
+    case policyViolation
+    case nonceMismatch
+
+    static func from(_ key: String) -> AttestError {
+        switch key {
+        case "dreiAttest_policy_violation":
+            return .policyViolation
+        case "dreiAttest_nonce_mismatch":
+            return .policyViolation
+        default:
+            return .internal
+        }
+    }
 }

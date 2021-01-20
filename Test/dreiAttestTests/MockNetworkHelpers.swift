@@ -12,7 +12,7 @@ class KeyCountingNetworkHelper: _NetworkHelper {
 
     required init(baseUrl: URL) {}
 
-    func registerNewKey(keyId: String, callback: @escaping () -> Void, error: (Error?) -> Void) {
+    func registerNewKey(keyId: String, uid: String, callback: @escaping () -> Void, error: @escaping (Error?) -> Void) {
         registerCount += 1
         callback()
     }
