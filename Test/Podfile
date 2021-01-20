@@ -5,4 +5,5 @@ use_frameworks!
 
 target 'dreiAttestTests' do
     pod 'Alamofire', '~> 5.4.0'
+    pod 'Mocker', '~> 2.2.0'
 end
