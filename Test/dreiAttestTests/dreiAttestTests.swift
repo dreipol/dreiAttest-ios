@@ -7,6 +7,7 @@
 
 import XCTest
 import Mocker
+import SwiftCBOR
 
 class dreiAttestTests: XCTestCase {
 
@@ -94,6 +95,27 @@ class dreiAttestTests: XCTestCase {
         XCTAssert(service3.networkHelper.registerCount == 1)
     }
 
+    func decodeAttestation(attestation: CBOR) -> (certificates: [Data], receipt: Data, auth:Data)? {
+        guard case .map(let root) = attestation,
+              root[.utf8String("fmt")] == .utf8String("apple-appattest"),
+              case .some(.map(let attStmt)) = root[.utf8String("attStmt")],
+              case .byteString(let authData) = root[.utf8String("authData")],
+              case .array(let certificates) = attStmt[.utf8String("x5c")],
+              case .byteString(let receipt) = attStmt[.utf8String("receipt")] else {
+            return nil
+        }
+
+        let certificatesDecoded: [Data] = certificates.compactMap({
+            guard case .byteString(let data) = $0 else {
+                return nil
+            }
+
+            return Data(data)
+        })
+
+        return (certificates: certificatesDecoded, receipt: Data(receipt), auth: Data(authData))
+    }
+
     func testKeyRegistration() throws {
         guard let baseURL = URL(string: "https://dreipol.ch") else {
             XCTFail()
@@ -110,11 +132,12 @@ class dreiAttestTests: XCTestCase {
         var registration = Mock(url: baseURL.appendingPathComponent("dreiAttest/publishKey"), dataType: .html, statusCode: 200, data: [.post: Data()])
         registration.onRequest = { _, body in
             guard let attestationString = body?["attestation"] as? String,
-                  let attestation = Data(base64Encoded: attestationString) else {
+                  let attestation = Data(base64Encoded: attestationString),
+                  let decoded = try? CBOR.decode([UInt8](attestation)),
+                  self.decodeAttestation(attestation: decoded) != nil else {
                 XCTFail()
                 return
             }
-            print(attestation)
         }
         registration.register()
 
