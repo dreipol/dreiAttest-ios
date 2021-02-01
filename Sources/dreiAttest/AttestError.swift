@@ -12,6 +12,7 @@ public enum AttestError: Error {
     case `internal`
     case policyViolation
     case nonceMismatch
+    case illegalHeaders
 
     static func from(_ key: String) -> AttestError {
         switch key {

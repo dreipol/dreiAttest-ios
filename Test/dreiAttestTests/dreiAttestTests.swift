@@ -9,6 +9,7 @@ import XCTest
 import Mocker
 import SwiftCBOR
 import CryptoKit
+import Alamofire
 
 class dreiAttestTests: XCTestCase {
 
@@ -157,5 +158,32 @@ class dreiAttestTests: XCTestCase {
         XCTAssertEqual(DefaultNetworkHelper.nonce(uid: "user1", keyId: "abc", snonce: ""), Data(SHA256.hash(data: "user1abc".data(using: .utf8)!)))
         XCTAssertEqual(DefaultNetworkHelper.nonce(uid: "user1", keyId: "", snonce: "AsG/cH/+402bG/Ggvo7M7w6K0D6o8IVWB/nKhLGm2S4="), Data(SHA256.hash(data: "user1AsG/cH/+402bG/Ggvo7M7w6K0D6o8IVWB/nKhLGm2S4=".data(using: .utf8)!)))
         XCTAssertEqual(DefaultNetworkHelper.nonce(uid: "", keyId: "abc", snonce: "AsG/cH/+402bG/Ggvo7M7w6K0D6o8IVWB/nKhLGm2S4="), Data(SHA256.hash(data: "abcAsG/cH/+402bG/Ggvo7M7w6K0D6o8IVWB/nKhLGm2S4=".data(using: .utf8)!)))
+    }
+
+    func testRequestHash() throws {
+        var originalRequest = try URLRequest(url: URL(string: "https://dreipol.ch/test")!, method: .get, headers: HTTPHeaders([.accept("text/json")]))
+        originalRequest.httpBody = "hello".data(using: .utf8)
+        var request1 = originalRequest
+        request1.url = URL(string: "https://dreipol.ch")!
+        var request2 = originalRequest
+        request2.method = .delete
+        var request3 = originalRequest
+        request3.setValue(nil, forHTTPHeaderField: "Accept")
+        var request4 = originalRequest
+        request4.headers =  HTTPHeaders([.userAgent("text/json")])
+        var request5 = originalRequest
+        request5.headers =  HTTPHeaders([.accept("text/plain")])
+        var request6 = originalRequest
+        request6.httpBody = nil
+        var request7 = originalRequest
+        request7.httpBody = "world".data(using: .utf8)
+
+        XCTAssertNotEqual(DefaultNetworkHelper.requestHash(originalRequest), DefaultNetworkHelper.requestHash(request1))
+        XCTAssertNotEqual(DefaultNetworkHelper.requestHash(originalRequest), DefaultNetworkHelper.requestHash(request2))
+        XCTAssertNotEqual(DefaultNetworkHelper.requestHash(originalRequest), DefaultNetworkHelper.requestHash(request3))
+        XCTAssertNotEqual(DefaultNetworkHelper.requestHash(originalRequest), DefaultNetworkHelper.requestHash(request4))
+        XCTAssertNotEqual(DefaultNetworkHelper.requestHash(originalRequest), DefaultNetworkHelper.requestHash(request5))
+        XCTAssertNotEqual(DefaultNetworkHelper.requestHash(originalRequest), DefaultNetworkHelper.requestHash(request6))
+        XCTAssertNotEqual(DefaultNetworkHelper.requestHash(originalRequest), DefaultNetworkHelper.requestHash(request7))
     }
 }
