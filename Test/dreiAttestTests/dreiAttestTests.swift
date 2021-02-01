@@ -195,10 +195,7 @@ class dreiAttestTests: XCTestCase {
         let request1 = try URLRequest(url: URL(string: "https://dreipol.ch/test/abc")!, method: .get, headers: HTTPHeaders([.accept("text/json")]))
         let request2 = try URLRequest(url: URL(string: "https://dreipol.ch/test/abc")!, method: .get, headers: HTTPHeaders([.accept("text/json"), .signature(value: "123")]))
 
-        let expection1 = XCTestExpectation()
-        let expection2 = XCTestExpectation()
-        let expection3 = XCTestExpectation()
-        let expection4 = XCTestExpectation()
+        let expectations = (0..<5).map({ _ in XCTestExpectation() })
 
         service1.adapt(request1, for: Session()) {
             switch $0 {
@@ -208,7 +205,7 @@ class dreiAttestTests: XCTestCase {
             default:
                 XCTFail()
             }
-            expection1.fulfill()
+            expectations[0].fulfill()
         }
 
         service1.adapt(request2, for: Session()) {
@@ -218,7 +215,7 @@ class dreiAttestTests: XCTestCase {
             default:
                 XCTFail()
             }
-            expection2.fulfill()
+            expectations[1].fulfill()
         }
 
         service2.adapt(request1, for: Session()) {
@@ -228,7 +225,18 @@ class dreiAttestTests: XCTestCase {
             default:
                 XCTFail()
             }
-            expection3.fulfill()
+            expectations[2].fulfill()
+        }
+
+        // Make sure we don't fail when chaining Attest Services
+        service2.adapt(request2, for: Session()) {
+            switch $0 {
+            case .success(let request):
+                XCTAssertEqual(request, request2)
+            default:
+                XCTFail()
+            }
+            expectations[3].fulfill()
         }
 
         service3.adapt(request1, for: Session()) {
@@ -238,9 +246,9 @@ class dreiAttestTests: XCTestCase {
             default:
                 XCTFail()
             }
-            expection4.fulfill()
+            expectations[4].fulfill()
         }
 
-        wait(for: [expection1, expection2, expection3, expection4], timeout: 10)
+        wait(for: expectations, timeout: 10)
     }
 }
