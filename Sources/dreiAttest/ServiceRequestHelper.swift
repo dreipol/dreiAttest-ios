@@ -80,14 +80,6 @@ struct ServiceRequestHelper {
         // TODO: implement
     }
 
-    static func nonce(uid: String, keyId: String, snonce: String) -> Data? {
-        guard let nonceData = (uid + keyId + snonce).data(using: .utf8) else {
-            return nil
-        }
-
-        return Data(SHA256.hash(data: nonceData))
-    }
-
     static func requestHash(_ urlRequest: URLRequest) -> Data {
         let url = urlRequest.url?.absoluteString.data(using: .utf8) ?? Data()
         let method = (urlRequest.method?.rawValue ?? "").data(using: .utf8) ?? Data()

@@ -19,6 +19,11 @@ class KeyCountingNetworkHelper: _KeyNetworkHelper {
         registerCount += 1
         callback()
     }
+
+    func deregisterKey(_ keyId: String, for uid: String, success: @escaping () -> Void, error: @escaping (Error?) -> Void) {
+        UserDefaults.standard.keyIds[uid] = nil
+        success()
+    }
 }
 
 class AlwaysAcceptingKeyNetworkHelper: _KeyNetworkHelper {
@@ -28,5 +33,10 @@ class AlwaysAcceptingKeyNetworkHelper: _KeyNetworkHelper {
         DCAppAttestService.shared.attestKey(keyId, clientDataHash: Data(SHA256.hash(data: Data()))) { attestation, err in
             callback()
         }
+    }
+
+    func deregisterKey(_ keyId: String, for uid: String, success: @escaping () -> Void, error: @escaping (Error?) -> Void) {
+        UserDefaults.standard.keyIds[uid] = nil
+        success()
     }
 }

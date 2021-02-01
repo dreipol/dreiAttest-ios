@@ -15,6 +15,7 @@ public protocol _KeyNetworkHelper {
     init(baseUrl: URL, sessionConfiguration: URLSessionConfiguration)
 
     func registerNewKey(keyId: String, uid: String, callback: @escaping () -> Void, error: @escaping (Error?) -> Void)
+    func deregisterKey(_ keyId: String, for uid: String, success: @escaping () -> Void, error: @escaping (Error?) -> Void)
 }
 
 public struct DefaultKeyNetworkHelper: _KeyNetworkHelper {
@@ -74,29 +75,75 @@ public struct DefaultKeyNetworkHelper: _KeyNetworkHelper {
     // TODO: make internal when _NetworkHelper is sealed
     public func registerNewKey(keyId: String, uid: String, callback: @escaping () -> Void, error: @escaping (Error?) -> Void) {
         do {
-            let session = Session(configuration: sessionConfiguration)
-            let getNonceHeaders = HTTPHeaders([.uid(value: uid), .contentType("text/plain")])
-            try session.request(baseUrl: baseUrl, endpoint: Endpoints.keyRegistrationNonce, headers: getNonceHeaders)
-                .responseString { snonce in
-                    defer {
-                        session.close()
-                    }
+            try doWithSNonce(uid: uid, success: { snonce in
+                guard let nonce = Self.nonce(uid: uid, keyId: keyId, snonce: snonce) else {
+                    error(AttestError.internal)
+                    return
+                }
 
-                    switch snonce.result {
-                    case .success(let snonce):
-                        guard let nonce = Self.nonce(uid: uid, keyId: keyId, snonce: snonce) else {
-                            error(AttestError.internal)
-                            return
-                        }
-
-                        registerKey(with: nonce, uid: uid, keyId: keyId, callback: callback, error: error)
-                    case .failure(let err):
-                        error(err)
-                    }
-            }.resume()
+                registerKey(with: nonce, uid: uid, keyId: keyId, callback: callback, error: error)
+            }, error: error)
         } catch let err {
             error(err)
         }
+    }
+
+    public func deregisterKey(_ keyId: String, for uid: String, success: @escaping () -> Void, error: @escaping (Error?) -> Void) {
+        UserDefaults.standard.keyIds[uid] = nil
+
+        do {
+            try doWithSNonce(uid: uid, success: { snonce in
+                do {
+                    let deleteHeaders = HTTPHeaders([.uid(value: uid)])
+                    var request = try URLRequest(url: baseUrl.appendingPathComponent(Endpoints.deleteKey.name), method: Endpoints.deleteKey.method, headers: deleteHeaders)
+                    request.httpBody = keyId.data(using: .utf8)
+
+                    let requestHash = ServiceRequestHelper.requestHash(request)
+                    service.generateAssertion(keyId, clientDataHash: ServiceRequestHelper.nonce(requestHash, snonce: snonce)) { assertion, err in
+                        guard let assertion = assertion, err == nil else {
+                            error(err)
+                            return
+                        }
+
+                        request.addHeader(.signature(value: assertion.base64EncodedString()))
+                        let session = Session(configuration: sessionConfiguration)
+                        session.request(request).response { response in
+                            defer {
+                                session.close()
+                            }
+
+                            if response.response?.statusCode == 200 {
+                                success()
+                            } else {
+                                error(nil)
+                            }
+                        }.resume()
+                    }
+                } catch let err {
+                    error(err)
+                }
+            }, error: error)
+        } catch let err {
+            error(err)
+        }
+    }
+
+    func doWithSNonce(uid: String, success: @escaping (String) -> Void, error: @escaping (Error?) -> Void) throws {
+        let session = Session(configuration: sessionConfiguration)
+        let getNonceHeaders = HTTPHeaders([.uid(value: uid), .accept("text/plain")])
+        try session.request(baseUrl: baseUrl, endpoint: Endpoints.keyRegistrationNonce, headers: getNonceHeaders)
+            .responseString { snonce in
+                defer {
+                    session.close()
+                }
+
+                switch snonce.result {
+                case .success(let snonce):
+                    success(snonce)
+                case .failure(let err):
+                    error(err)
+                }
+            }.resume()
     }
 
     static func nonce(uid: String, keyId: String, snonce: String) -> Data? {

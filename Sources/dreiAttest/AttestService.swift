@@ -77,6 +77,15 @@ public final class AttestService<KeyNetworkHelper: _KeyNetworkHelper>: RequestAd
         callback(keyId)
     }
 
+    public func deregisterKey(callback: @escaping () -> Void) {
+        guard let keyId = UserDefaults.standard.keyIds[serviceUid] else {
+            return
+        }
+
+        // Server errors are ignored and key is deleted locally
+        keyNetworkHelper.deregisterKey(keyId, for: serviceUid, success: {}, error: { _ in })
+    }
+
     public func adapt(_ urlRequest: URLRequest, for session: Session, completion: @escaping (Result<URLRequest, Error>) -> Void) {
         getKeyId(callback: { keyId in
             self.serviceRequestHelper.adapt(urlRequest, for: session, uid: self.serviceUid, keyId: keyId, completion: completion)
