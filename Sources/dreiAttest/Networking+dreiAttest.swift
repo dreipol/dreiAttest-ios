@@ -49,3 +49,14 @@ extension URLRequest {
         addValue(header.value, forHTTPHeaderField: header.name)
     }
 }
+
+extension URL {
+    func isSubpath(of other: URL) -> Bool {
+        var absolute = other.absoluteString
+        if !absolute.hasSuffix("/") {
+            absolute += "/"
+        }
+
+        return absoluteString.hasPrefix(absolute)
+    }
+}

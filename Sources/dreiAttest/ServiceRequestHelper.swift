@@ -24,7 +24,7 @@ struct ServiceRequestHelper {
     func adapt(_ urlRequest: URLRequest, for session: Session, uid: String, keyId: String, completion: @escaping (Result<URLRequest, Error>) -> Void) {
         // decide whether we have to handle the request before checking headers so we can have multiple AttestationServices running at the same time for different
         // baseUrls
-        guard urlRequest.url?.absoluteString.hasPrefix(baseUrl.absoluteString) == true else {
+        guard urlRequest.url?.isSubpath(of: baseUrl) == true else {
             completion(.success(urlRequest))
             return
         }

@@ -7,6 +7,8 @@
 
 import Foundation
 import Alamofire
+import DeviceCheck
+import CryptoKit
 
 class KeyCountingNetworkHelper: _NetworkHelper {
     var registerCount = 0
@@ -23,6 +25,8 @@ class AlwaysAcceptNetworkHelper: _NetworkHelper {
     required init(baseUrl: URL, sessionConfiguration: URLSessionConfiguration) {}
 
     func registerNewKey(keyId: String, uid: String, callback: @escaping () -> Void, error: @escaping (Error?) -> Void) {
-        callback()
+        DCAppAttestService.shared.attestKey(keyId, clientDataHash: Data(SHA256.hash(data: Data()))) { attestation, err in
+            callback()
+        }
     }
 }

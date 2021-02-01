@@ -204,7 +204,7 @@ class dreiAttestTests: XCTestCase {
             switch $0 {
             case .success(let request):
                 XCTAssertNotNil(request.allHTTPHeaderFields?["dreiAttest-signature"])
-                XCTAssertEqual(request.allHTTPHeaderFields?["dreiAttest-uid"], service1.uid)
+                XCTAssertEqual(request.allHTTPHeaderFields?["dreiAttest-uid"], service1.serviceUid)
             default:
                 XCTFail()
             }
