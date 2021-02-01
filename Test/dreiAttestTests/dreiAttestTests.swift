@@ -128,9 +128,9 @@ class dreiAttestTests: XCTestCase {
         let service = try AttestService(baseAddress: baseURL, uid: "registration", config: Config(networkHelperType: DefaultNetworkHelper.self, sessionConfiguration: configuration))
 
         let snonce = UUID().uuidString
-        Mock(url: baseURL.appendingPathComponent("dreiAttest/getNonce"), dataType: .html, statusCode: 200, data: [.get: snonce.data(using: .utf8) ?? Data()])
+        Mock(url: baseURL.appendingPathComponent("dreiAttest/nonce"), dataType: .html, statusCode: 200, data: [.get: snonce.data(using: .utf8) ?? Data()])
             .register()
-        var registration = Mock(url: baseURL.appendingPathComponent("dreiAttest/publishKey"), dataType: .html, statusCode: 200, data: [.post: Data()])
+        var registration = Mock(url: baseURL.appendingPathComponent("dreiAttest/key"), dataType: .html, statusCode: 200, data: [.post: Data()])
         registration.onRequest = { _, body in
             guard let attestationString = body?["attestation"] as? String,
                   let attestation = Data(base64Encoded: attestationString),
