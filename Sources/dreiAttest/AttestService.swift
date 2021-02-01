@@ -15,17 +15,23 @@ public final class AttestService<NetworkHelper: _NetworkHelper>: RequestAdapter 
     public let uid: String
 
     let networkHelper: NetworkHelper
+    let serviceRequestHelper: ServiceRequestHelper
     let service = DCAppAttestService.shared
     var serviceUid: String {
         UserDefaults.standard.serviceUid(for: uid)
     }
 
     init(baseAddress: URL, uid: String, validationLevel: ValidationLevel, config: Config<NetworkHelper>) throws {
+        guard validationLevel == .signOnly else {
+            fatalError("not yet implemented!")
+        }
+
         guard service.isSupported else {
             throw AttestError.notSupported
         }
 
-        networkHelper = config.networkHelperType.init(baseUrl: baseAddress, sessionConfiguration: config.sessionConfiguration, validationLevel: validationLevel)
+        networkHelper = config.networkHelperType.init(baseUrl: baseAddress, sessionConfiguration: config.sessionConfiguration)
+        serviceRequestHelper = ServiceRequestHelper(baseUrl: baseAddress,validationLevel: validationLevel)
         self.uid = uid
     }
 
@@ -73,7 +79,7 @@ public final class AttestService<NetworkHelper: _NetworkHelper>: RequestAdapter 
 
     public func adapt(_ urlRequest: URLRequest, for session: Session, completion: @escaping (Result<URLRequest, Error>) -> Void) {
         getKeyId(callback: { keyId in
-            self.networkHelper.adapt(urlRequest, for: session, uid: self.serviceUid, keyId: keyId, completion: completion)
+            self.serviceRequestHelper.adapt(urlRequest, for: session, uid: self.serviceUid, keyId: keyId, completion: completion)
         }, error: { completion(.failure($0 ?? AttestError.internal)) })
     }
 }

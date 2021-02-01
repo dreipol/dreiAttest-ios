@@ -178,12 +178,69 @@ class dreiAttestTests: XCTestCase {
         var request7 = originalRequest
         request7.httpBody = "world".data(using: .utf8)
 
-        XCTAssertNotEqual(DefaultNetworkHelper.requestHash(originalRequest), DefaultNetworkHelper.requestHash(request1))
-        XCTAssertNotEqual(DefaultNetworkHelper.requestHash(originalRequest), DefaultNetworkHelper.requestHash(request2))
-        XCTAssertNotEqual(DefaultNetworkHelper.requestHash(originalRequest), DefaultNetworkHelper.requestHash(request3))
-        XCTAssertNotEqual(DefaultNetworkHelper.requestHash(originalRequest), DefaultNetworkHelper.requestHash(request4))
-        XCTAssertNotEqual(DefaultNetworkHelper.requestHash(originalRequest), DefaultNetworkHelper.requestHash(request5))
-        XCTAssertNotEqual(DefaultNetworkHelper.requestHash(originalRequest), DefaultNetworkHelper.requestHash(request6))
-        XCTAssertNotEqual(DefaultNetworkHelper.requestHash(originalRequest), DefaultNetworkHelper.requestHash(request7))
+        XCTAssertNotEqual(ServiceRequestHelper.requestHash(originalRequest), ServiceRequestHelper.requestHash(request1))
+        XCTAssertNotEqual(ServiceRequestHelper.requestHash(originalRequest), ServiceRequestHelper.requestHash(request2))
+        XCTAssertNotEqual(ServiceRequestHelper.requestHash(originalRequest), ServiceRequestHelper.requestHash(request3))
+        XCTAssertNotEqual(ServiceRequestHelper.requestHash(originalRequest), ServiceRequestHelper.requestHash(request4))
+        XCTAssertNotEqual(ServiceRequestHelper.requestHash(originalRequest), ServiceRequestHelper.requestHash(request5))
+        XCTAssertNotEqual(ServiceRequestHelper.requestHash(originalRequest), ServiceRequestHelper.requestHash(request6))
+        XCTAssertNotEqual(ServiceRequestHelper.requestHash(originalRequest), ServiceRequestHelper.requestHash(request7))
+    }
+
+    func testHeaderInsertion() throws {
+        let service1 = try AttestService(baseAddress: URL(string: "https://dreipol.ch/test")!, uid: "", validationLevel: .signOnly, config: Config(networkHelperType: AlwaysAcceptNetworkHelper.self))
+        let service2 = try AttestService(baseAddress: URL(string: "https://dreipol.ch/test2")!, uid: "", validationLevel: .signOnly, config: Config(networkHelperType: AlwaysAcceptNetworkHelper.self))
+        let service3 = try AttestService(baseAddress: URL(string: "https://dreipol.ch/test/a")!, uid: "", validationLevel: .signOnly, config: Config(networkHelperType: AlwaysAcceptNetworkHelper.self))
+
+        let request1 = try URLRequest(url: URL(string: "https://dreipol.ch/test/abc")!, method: .get, headers: HTTPHeaders([.accept("text/json")]))
+        let request2 = try URLRequest(url: URL(string: "https://dreipol.ch/test/abc")!, method: .get, headers: HTTPHeaders([.accept("text/json"), .signature(value: "123")]))
+
+        let expection1 = XCTestExpectation()
+        let expection2 = XCTestExpectation()
+        let expection3 = XCTestExpectation()
+        let expection4 = XCTestExpectation()
+
+        service1.adapt(request1, for: Session()) {
+            switch $0 {
+            case .success(let request):
+                XCTAssertNotNil(request.allHTTPHeaderFields?["dreiAttest-signature"])
+                XCTAssertEqual(request.allHTTPHeaderFields?["dreiAttest-uid"], service1.uid)
+            default:
+                XCTFail()
+            }
+            expection1.fulfill()
+        }
+
+        service1.adapt(request2, for: Session()) {
+            switch $0 {
+            case .failure(AttestError.illegalHeaders):
+                break
+            default:
+                XCTFail()
+            }
+            expection2.fulfill()
+        }
+
+        service2.adapt(request1, for: Session()) {
+            switch $0 {
+            case .success(let request):
+                XCTAssertEqual(request, request1)
+            default:
+                XCTFail()
+            }
+            expection3.fulfill()
+        }
+
+        service3.adapt(request1, for: Session()) {
+            switch $0 {
+            case .success(let request):
+                XCTAssertEqual(request, request1)
+            default:
+                XCTFail()
+            }
+            expection4.fulfill()
+        }
+
+        wait(for: [expection1, expection2, expection3, expection4], timeout: 10)
     }
 }
