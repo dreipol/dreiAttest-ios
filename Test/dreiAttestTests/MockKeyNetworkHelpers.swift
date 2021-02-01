@@ -1,5 +1,5 @@
 //
-//  MockNetworkHelpers.swift
+//  MockKeyNetworkHelpers.swift
 //  dreiAttestTests
 //
 //  Created by Nils Becker on 19.01.21.
@@ -10,7 +10,7 @@ import Alamofire
 import DeviceCheck
 import CryptoKit
 
-class KeyCountingNetworkHelper: _NetworkHelper {
+class KeyCountingNetworkHelper: _KeyNetworkHelper {
     var registerCount = 0
 
     required init(baseUrl: URL, sessionConfiguration: URLSessionConfiguration) {}
@@ -21,7 +21,7 @@ class KeyCountingNetworkHelper: _NetworkHelper {
     }
 }
 
-class AlwaysAcceptNetworkHelper: _NetworkHelper {
+class AlwaysAcceptingKeyNetworkHelper: _KeyNetworkHelper {
     required init(baseUrl: URL, sessionConfiguration: URLSessionConfiguration) {}
 
     func registerNewKey(keyId: String, uid: String, callback: @escaping () -> Void, error: @escaping (Error?) -> Void) {

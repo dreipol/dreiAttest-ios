@@ -92,9 +92,9 @@ class dreiAttestTests: XCTestCase {
         })
 
         wait(for: [expectation3, expectation4], timeout: 10)
-        XCTAssert(service1.networkHelper.registerCount == 1)
-        XCTAssert(service2.networkHelper.registerCount == 0)
-        XCTAssert(service3.networkHelper.registerCount == 1)
+        XCTAssert(service1.keyNetworkHelper.registerCount == 1)
+        XCTAssert(service2.keyNetworkHelper.registerCount == 0)
+        XCTAssert(service3.keyNetworkHelper.registerCount == 1)
     }
 
     func decodeAttestation(attestation: CBOR) -> (certificates: [Data], receipt: Data, auth:Data)? {
@@ -126,7 +126,7 @@ class dreiAttestTests: XCTestCase {
 
         let configuration = URLSessionConfiguration.af.default
         configuration.protocolClasses = [MockingURLProtocol.self] + (configuration.protocolClasses ?? [])
-        let service = try AttestService(baseAddress: baseURL, uid: "registration", validationLevel: .signOnly, config: Config(networkHelperType: DefaultNetworkHelper.self, sessionConfiguration: configuration))
+        let service = try AttestService(baseAddress: baseURL, uid: "registration", validationLevel: .signOnly, config: Config(networkHelperType: DefaultKeyNetworkHelper.self, sessionConfiguration: configuration))
 
         let snonce = UUID().uuidString
         Mock(url: baseURL.appendingPathComponent("dreiAttest/nonce"), dataType: .html, statusCode: 200, data: [.get: snonce.data(using: .utf8) ?? Data()])
@@ -154,10 +154,10 @@ class dreiAttestTests: XCTestCase {
     }
 
     func testKeyRegistrationNonce() {
-        XCTAssertEqual(DefaultNetworkHelper.nonce(uid: "user1", keyId: "abc", snonce: "AsG/cH/+402bG/Ggvo7M7w6K0D6o8IVWB/nKhLGm2S4="), Data(SHA256.hash(data: "user1abcAsG/cH/+402bG/Ggvo7M7w6K0D6o8IVWB/nKhLGm2S4=".data(using: .utf8)!)))
-        XCTAssertEqual(DefaultNetworkHelper.nonce(uid: "user1", keyId: "abc", snonce: ""), Data(SHA256.hash(data: "user1abc".data(using: .utf8)!)))
-        XCTAssertEqual(DefaultNetworkHelper.nonce(uid: "user1", keyId: "", snonce: "AsG/cH/+402bG/Ggvo7M7w6K0D6o8IVWB/nKhLGm2S4="), Data(SHA256.hash(data: "user1AsG/cH/+402bG/Ggvo7M7w6K0D6o8IVWB/nKhLGm2S4=".data(using: .utf8)!)))
-        XCTAssertEqual(DefaultNetworkHelper.nonce(uid: "", keyId: "abc", snonce: "AsG/cH/+402bG/Ggvo7M7w6K0D6o8IVWB/nKhLGm2S4="), Data(SHA256.hash(data: "abcAsG/cH/+402bG/Ggvo7M7w6K0D6o8IVWB/nKhLGm2S4=".data(using: .utf8)!)))
+        XCTAssertEqual(DefaultKeyNetworkHelper.nonce(uid: "user1", keyId: "abc", snonce: "AsG/cH/+402bG/Ggvo7M7w6K0D6o8IVWB/nKhLGm2S4="), Data(SHA256.hash(data: "user1abcAsG/cH/+402bG/Ggvo7M7w6K0D6o8IVWB/nKhLGm2S4=".data(using: .utf8)!)))
+        XCTAssertEqual(DefaultKeyNetworkHelper.nonce(uid: "user1", keyId: "abc", snonce: ""), Data(SHA256.hash(data: "user1abc".data(using: .utf8)!)))
+        XCTAssertEqual(DefaultKeyNetworkHelper.nonce(uid: "user1", keyId: "", snonce: "AsG/cH/+402bG/Ggvo7M7w6K0D6o8IVWB/nKhLGm2S4="), Data(SHA256.hash(data: "user1AsG/cH/+402bG/Ggvo7M7w6K0D6o8IVWB/nKhLGm2S4=".data(using: .utf8)!)))
+        XCTAssertEqual(DefaultKeyNetworkHelper.nonce(uid: "", keyId: "abc", snonce: "AsG/cH/+402bG/Ggvo7M7w6K0D6o8IVWB/nKhLGm2S4="), Data(SHA256.hash(data: "abcAsG/cH/+402bG/Ggvo7M7w6K0D6o8IVWB/nKhLGm2S4=".data(using: .utf8)!)))
     }
 
     func testRequestHash() throws {
@@ -188,9 +188,9 @@ class dreiAttestTests: XCTestCase {
     }
 
     func testHeaderInsertion() throws {
-        let service1 = try AttestService(baseAddress: URL(string: "https://dreipol.ch/test")!, uid: "", validationLevel: .signOnly, config: Config(networkHelperType: AlwaysAcceptNetworkHelper.self))
-        let service2 = try AttestService(baseAddress: URL(string: "https://dreipol.ch/test2")!, uid: "", validationLevel: .signOnly, config: Config(networkHelperType: AlwaysAcceptNetworkHelper.self))
-        let service3 = try AttestService(baseAddress: URL(string: "https://dreipol.ch/test/a")!, uid: "", validationLevel: .signOnly, config: Config(networkHelperType: AlwaysAcceptNetworkHelper.self))
+        let service1 = try AttestService(baseAddress: URL(string: "https://dreipol.ch/test")!, uid: "", validationLevel: .signOnly, config: Config(networkHelperType: AlwaysAcceptingKeyNetworkHelper.self))
+        let service2 = try AttestService(baseAddress: URL(string: "https://dreipol.ch/test2")!, uid: "", validationLevel: .signOnly, config: Config(networkHelperType: AlwaysAcceptingKeyNetworkHelper.self))
+        let service3 = try AttestService(baseAddress: URL(string: "https://dreipol.ch/test/a")!, uid: "", validationLevel: .signOnly, config: Config(networkHelperType: AlwaysAcceptingKeyNetworkHelper.self))
 
         let request1 = try URLRequest(url: URL(string: "https://dreipol.ch/test/abc")!, method: .get, headers: HTTPHeaders([.accept("text/json")]))
         let request2 = try URLRequest(url: URL(string: "https://dreipol.ch/test/abc")!, method: .get, headers: HTTPHeaders([.accept("text/json"), .signature(value: "123")]))

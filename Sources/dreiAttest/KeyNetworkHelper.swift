@@ -1,5 +1,5 @@
 //
-//  NetworkHelper.swift
+//  KeyNetworkHelper.swift
 //  dreiAttestTests
 //
 //  Created by Nils Becker on 18.01.21.
@@ -11,13 +11,13 @@ import CryptoKit
 import DeviceCheck
 
 // TODO: make sealed if this proposal is ever accepted: https://forums.swift.org/t/sealed-protocols/19118
-public protocol _NetworkHelper {
+public protocol _KeyNetworkHelper {
     init(baseUrl: URL, sessionConfiguration: URLSessionConfiguration)
 
     func registerNewKey(keyId: String, uid: String, callback: @escaping () -> Void, error: @escaping (Error?) -> Void)
 }
 
-public struct DefaultNetworkHelper: _NetworkHelper {
+public struct DefaultKeyNetworkHelper: _KeyNetworkHelper {
     let baseUrl: URL
     let service = DCAppAttestService.shared
     let sessionConfiguration: URLSessionConfiguration

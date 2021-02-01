@@ -18,8 +18,8 @@ struct Config<NetworkHelper> {
     }
 }
 
-extension Config where NetworkHelper == DefaultNetworkHelper {
+extension Config where NetworkHelper == DefaultKeyNetworkHelper {
     init() {
-        self.init(networkHelperType: DefaultNetworkHelper.self)
+        self.init(networkHelperType: DefaultKeyNetworkHelper.self)
     }
 }

@@ -11,17 +11,17 @@ import Alamofire
 
 private let keyGenerationLock = NSLock()
 
-public final class AttestService<NetworkHelper: _NetworkHelper>: RequestAdapter {
+public final class AttestService<KeyNetworkHelper: _KeyNetworkHelper>: RequestAdapter {
     public let uid: String
 
-    let networkHelper: NetworkHelper
+    let keyNetworkHelper: KeyNetworkHelper
     let serviceRequestHelper: ServiceRequestHelper
     let service = DCAppAttestService.shared
     var serviceUid: String {
         UserDefaults.standard.serviceUid(for: uid)
     }
 
-    init(baseAddress: URL, uid: String, validationLevel: ValidationLevel, config: Config<NetworkHelper>) throws {
+    init(baseAddress: URL, uid: String, validationLevel: ValidationLevel, config: Config<KeyNetworkHelper>) throws {
         guard validationLevel == .signOnly else {
             fatalError("not yet implemented!")
         }
@@ -30,7 +30,7 @@ public final class AttestService<NetworkHelper: _NetworkHelper>: RequestAdapter 
             throw AttestError.notSupported
         }
 
-        networkHelper = config.networkHelperType.init(baseUrl: baseAddress, sessionConfiguration: config.sessionConfiguration)
+        keyNetworkHelper = config.networkHelperType.init(baseUrl: baseAddress, sessionConfiguration: config.sessionConfiguration)
         serviceRequestHelper = ServiceRequestHelper(baseUrl: baseAddress,validationLevel: validationLevel)
         self.uid = uid
     }
@@ -64,7 +64,7 @@ public final class AttestService<NetworkHelper: _NetworkHelper>: RequestAdapter 
                 }
                 // once we commit to generating a new key we want to complete the operation so we capture self strongly
                 self.generateNewKey(callback: { keyId in
-                    self.networkHelper.registerNewKey(keyId: keyId, uid: self.serviceUid, callback: {
+                    self.keyNetworkHelper.registerNewKey(keyId: keyId, uid: self.serviceUid, callback: {
                         UserDefaults.standard.keyIds[self.serviceUid] = keyId
                         keyGenerationLock.unlock()
                         callback(keyId)
@@ -84,7 +84,7 @@ public final class AttestService<NetworkHelper: _NetworkHelper>: RequestAdapter 
     }
 }
 
-public extension AttestService where NetworkHelper == DefaultNetworkHelper {
+public extension AttestService where KeyNetworkHelper == DefaultKeyNetworkHelper {
     convenience init(baseAddress: URL, uid: String = "", validationLevel: ValidationLevel) throws {
         try self.init(baseAddress: baseAddress, uid: uid, validationLevel: validationLevel, config: Config())
     }
