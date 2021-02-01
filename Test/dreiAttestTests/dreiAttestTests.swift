@@ -59,9 +59,9 @@ class dreiAttestTests: XCTestCase {
         }
 
         let config = Config(networkHelperType: KeyCountingNetworkHelper.self)
-        let service1 = try AttestService(baseAddress: testURL, uid: "user1", config: config)
-        let service2 = try AttestService(baseAddress: testURL, uid: "user1", config: config)
-        let service3 = try AttestService(baseAddress: testURL, uid: "user2", config: config)
+        let service1 = try AttestService(baseAddress: testURL, uid: "user1", validationLevel: .signOnly, config: config)
+        let service2 = try AttestService(baseAddress: testURL, uid: "user1", validationLevel: .signOnly, config: config)
+        let service3 = try AttestService(baseAddress: testURL, uid: "user2", validationLevel: .signOnly, config: config)
 
         let expectation1 = XCTestExpectation()
         let expectation2 = XCTestExpectation()
@@ -125,7 +125,7 @@ class dreiAttestTests: XCTestCase {
 
         let configuration = URLSessionConfiguration.af.default
         configuration.protocolClasses = [MockingURLProtocol.self] + (configuration.protocolClasses ?? [])
-        let service = try AttestService(baseAddress: baseURL, uid: "registration", config: Config(networkHelperType: DefaultNetworkHelper.self, sessionConfiguration: configuration))
+        let service = try AttestService(baseAddress: baseURL, uid: "registration", validationLevel: .signOnly, config: Config(networkHelperType: DefaultNetworkHelper.self, sessionConfiguration: configuration))
 
         let snonce = UUID().uuidString
         Mock(url: baseURL.appendingPathComponent("dreiAttest/nonce"), dataType: .html, statusCode: 200, data: [.get: snonce.data(using: .utf8) ?? Data()])

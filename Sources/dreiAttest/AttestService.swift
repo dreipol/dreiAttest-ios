@@ -7,10 +7,11 @@
 
 import Foundation
 import DeviceCheck
+import Alamofire
 
 private let keyGenerationLock = NSLock()
 
-public final class AttestService<NetworkHelper: _NetworkHelper> {
+public final class AttestService<NetworkHelper: _NetworkHelper>: RequestAdapter {
     public let uid: String
 
     let networkHelper: NetworkHelper
@@ -19,12 +20,12 @@ public final class AttestService<NetworkHelper: _NetworkHelper> {
         UserDefaults.standard.serviceUid(for: uid)
     }
 
-    init(baseAddress: URL, uid: String, config: Config<NetworkHelper>) throws {
+    init(baseAddress: URL, uid: String, validationLevel: ValidationLevel, config: Config<NetworkHelper>) throws {
         guard service.isSupported else {
             throw AttestError.notSupported
         }
 
-        networkHelper = config.networkHelperType.init(baseUrl: baseAddress, sessionConfiguration: config.sessionConfiguration)
+        networkHelper = config.networkHelperType.init(baseUrl: baseAddress, sessionConfiguration: config.sessionConfiguration, validationLevel: validationLevel)
         self.uid = uid
     }
 
@@ -69,10 +70,16 @@ public final class AttestService<NetworkHelper: _NetworkHelper> {
 
         callback(keyId)
     }
+
+    public func adapt(_ urlRequest: URLRequest, for session: Session, completion: @escaping (Result<URLRequest, Error>) -> Void) {
+        getKeyId(callback: { keyId in
+            self.networkHelper.adapt(urlRequest, for: session, uid: self.serviceUid, keyId: keyId, completion: completion)
+        }, error: { completion(.failure($0 ?? AttestError.internal)) })
+    }
 }
 
 public extension AttestService where NetworkHelper == DefaultNetworkHelper {
-    convenience init(baseAddress: URL, uid: String = "") throws {
-        try self.init(baseAddress: baseAddress, uid: uid, config: Config())
+    convenience init(baseAddress: URL, uid: String = "", validationLevel: ValidationLevel) throws {
+        try self.init(baseAddress: baseAddress, uid: uid, validationLevel: validationLevel, config: Config())
     }
 }

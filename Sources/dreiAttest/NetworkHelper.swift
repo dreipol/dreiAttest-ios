@@ -10,60 +10,33 @@ import Alamofire
 import CryptoKit
 import DeviceCheck
 
-struct Endpoint {
-    let name: String
-    let method: HTTPMethod
+public enum ValidationLevel {
+    case signOnly, withNonce
 }
 
-struct Endpoints {
-    static let registerKey = Endpoint(name: "dreiAttest/key", method: .post)
-    static let deleteKey = Endpoint(name: "dreiAttest/key", method: .delete)
-    static let keyRegistrationNonce = Endpoint(name: "dreiAttest/nonce", method: .get)
-    static let requestNonce = Endpoint(name: "dreiAttest/request_nonce", method: .get)
-}
-
-extension HTTPHeader {
-    static func uid(value: String) -> HTTPHeader {
-        HTTPHeader(name: "dreiAttest-uid", value: value)
-    }
-
-    static func signature(value: String) -> HTTPHeader {
-        HTTPHeader(name: "dreiAttest-signature", value: value)
-    }
-}
-
-extension Session {
-    func request(baseUrl: URL, endpoint: Endpoint, headers: HTTPHeaders, payload: [String: Any]? = nil) throws -> DataRequest {
-        var request = try URLRequest(url: baseUrl.appendingPathComponent(endpoint.name), method: endpoint.method, headers: headers)
-        if let payload = payload {
-            request.httpBody = try JSONSerialization.data(withJSONObject: payload, options: .prettyPrinted)
-        }
-
-        return self.request(request)
-    }
-
-    // Used to capture reference to session so it is only deinitialized after a request completes
-    func close() {}
-}
+private let defaultRequestNonce = "00000000-0000-0000-0000-000000000000"
 
 // TODO: make sealed if this proposal is ever accepted: https://forums.swift.org/t/sealed-protocols/19118
 public protocol _NetworkHelper {
-    init(baseUrl: URL, sessionConfiguration: URLSessionConfiguration)
+    init(baseUrl: URL, sessionConfiguration: URLSessionConfiguration, validationLevel: ValidationLevel)
 
     func registerNewKey(keyId: String, uid: String, callback: @escaping () -> Void, error: @escaping (Error?) -> Void)
+    func adapt(_ urlRequest: URLRequest, for session: Session, uid: String, keyId: String, completion: @escaping (Result<URLRequest, Error>) -> Void)
 }
 
 public struct DefaultNetworkHelper: _NetworkHelper {
     let baseUrl: URL
     let service = DCAppAttestService.shared
     let sessionConfiguration: URLSessionConfiguration
+    let validationLevel: ValidationLevel
 
     /**
      Do not use!
      */
-    public init(baseUrl: URL, sessionConfiguration: URLSessionConfiguration) {
+    public init(baseUrl: URL, sessionConfiguration: URLSessionConfiguration, validationLevel: ValidationLevel) {
         self.baseUrl = baseUrl
         self.sessionConfiguration = sessionConfiguration
+        self.validationLevel = validationLevel
     }
 
     private func registerKey(with nonce: Data, uid: String, keyId: String, callback: @escaping () -> Void, error: @escaping (Error?) -> Void) {
@@ -135,6 +108,54 @@ public struct DefaultNetworkHelper: _NetworkHelper {
         }
     }
 
+    public func adapt(_ urlRequest: URLRequest, for session: Session, uid: String, keyId: String, completion: @escaping (Result<URLRequest, Error>) -> Void) {
+        var mutableRequest = urlRequest
+        mutableRequest.addHeader(.uid(value: uid))
+
+        var requestHash: Data?
+        var snonce = defaultRequestNonce
+        var jobsToDo: Int32 = validationLevel == .withNonce ? 2 : 1
+
+        func finish() {
+            let nonce = Self.nonce(requestHash!, snonce: snonce)
+            service.generateAssertion(keyId, clientDataHash: nonce) { assertion, error in
+                guard let assertion = assertion, error == nil else {
+                    completion(.failure(error ?? AttestError.internal))
+                    return
+                }
+
+                mutableRequest.addHeader(.signature(value: assertion.base64EncodedString()))
+                completion(.success(mutableRequest))
+            }
+        }
+
+        DispatchQueue.global(qos: .userInitiated).async {
+            requestHash = Self.requestHash(mutableRequest)
+            if OSAtomicDecrement32(&jobsToDo) == 0 {
+                finish()
+            }
+        }
+
+        if validationLevel == .withNonce {
+            getRequestNonce(completion: {
+                snonce = $0
+
+                if OSAtomicDecrement32(&jobsToDo) == 0 {
+                    finish()
+                }
+            }, error: { completion(.failure($0 ?? AttestError.internal)) })
+        }
+    }
+
+    func getRequestNonce(completion: @escaping (String) -> Void, error: @escaping (Error?) -> Void) {
+        guard validationLevel == .withNonce else {
+            error(AttestError.internal)
+            return
+        }
+
+        // TODO: implement
+    }
+
     static func nonce(uid: String, keyId: String, snonce: String) -> Data? {
         guard let nonceData = (uid + keyId + snonce).data(using: .utf8) else {
             return nil
@@ -143,8 +164,15 @@ public struct DefaultNetworkHelper: _NetworkHelper {
         return Data(SHA256.hash(data: nonceData))
     }
 
-    static func nonce(_ request: URLRequest, snonce: String) -> Data? {
-        // TODO
-        return nil
+    static func requestHash(_ urlRequest: URLRequest) -> Data {
+        let url = urlRequest.url?.absoluteString.data(using: .utf8) ?? Data()
+        let method = (urlRequest.method?.rawValue ?? "").data(using: .utf8) ?? Data()
+        let headers = (try? JSONSerialization.data(withJSONObject: urlRequest.headers, options: [.prettyPrinted, .sortedKeys])) ?? Data()
+
+        return Data(SHA256.hash(data: url + method + headers + (urlRequest.httpBody ?? Data())))
+    }
+
+    static func nonce(_ requestHash: Data, snonce: String) -> Data {
+        Data(SHA256.hash(data: requestHash + (snonce.data(using: .utf8) ?? Data())))
     }
 }
