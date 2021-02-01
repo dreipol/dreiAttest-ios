@@ -60,12 +60,11 @@ public struct DefaultNetworkHelper: _NetworkHelper {
             .responseString { snonce in
                 switch snonce.result {
                 case .success(let snonce):
-                    guard let nonceData = (uid + keyId + snonce).data(using: .utf8) else {
+                    guard let nonce = Self.nonce(uid: uid, keyId: keyId, snonce: snonce) else {
                         error(AttestError.internal)
                         return
                     }
 
-                    let nonce = Data(SHA256.hash(data: nonceData))
                     service.attestKey(keyId, clientDataHash: nonce) { attestation, err in
                         guard err == nil,
                               let attestation = attestation else {
@@ -107,5 +106,18 @@ public struct DefaultNetworkHelper: _NetworkHelper {
                     error(err)
                 }
         }.resume()
+    }
+
+    static func nonce(uid: String, keyId: String, snonce: String) -> Data? {
+        guard let nonceData = (uid + keyId + snonce).data(using: .utf8) else {
+            return nil
+        }
+
+        return Data(SHA256.hash(data: nonceData))
+    }
+
+    static func nonce(_ request: URLRequest, snonce: String) -> Data? {
+        // TODO
+        return nil
     }
 }

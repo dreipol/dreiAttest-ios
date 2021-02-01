@@ -8,6 +8,7 @@
 import XCTest
 import Mocker
 import SwiftCBOR
+import CryptoKit
 
 class dreiAttestTests: XCTestCase {
 
@@ -149,5 +150,12 @@ class dreiAttestTests: XCTestCase {
         })
 
         wait(for: [expectation], timeout: 5)
+    }
+
+    func testKeyRegistrationNonce() {
+        XCTAssertEqual(DefaultNetworkHelper.nonce(uid: "user1", keyId: "abc", snonce: "AsG/cH/+402bG/Ggvo7M7w6K0D6o8IVWB/nKhLGm2S4="), Data(SHA256.hash(data: "user1abcAsG/cH/+402bG/Ggvo7M7w6K0D6o8IVWB/nKhLGm2S4=".data(using: .utf8)!)))
+        XCTAssertEqual(DefaultNetworkHelper.nonce(uid: "user1", keyId: "abc", snonce: ""), Data(SHA256.hash(data: "user1abc".data(using: .utf8)!)))
+        XCTAssertEqual(DefaultNetworkHelper.nonce(uid: "user1", keyId: "", snonce: "AsG/cH/+402bG/Ggvo7M7w6K0D6o8IVWB/nKhLGm2S4="), Data(SHA256.hash(data: "user1AsG/cH/+402bG/Ggvo7M7w6K0D6o8IVWB/nKhLGm2S4=".data(using: .utf8)!)))
+        XCTAssertEqual(DefaultNetworkHelper.nonce(uid: "", keyId: "abc", snonce: "AsG/cH/+402bG/Ggvo7M7w6K0D6o8IVWB/nKhLGm2S4="), Data(SHA256.hash(data: "abcAsG/cH/+402bG/Ggvo7M7w6K0D6o8IVWB/nKhLGm2S4=".data(using: .utf8)!)))
     }
 }

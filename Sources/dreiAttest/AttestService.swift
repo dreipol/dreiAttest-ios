@@ -29,7 +29,7 @@ public final class AttestService<NetworkHelper: _NetworkHelper> {
     }
 
     func generateNewKey(callback: @escaping (String) -> Void, error: @escaping (Error?) -> Void) {
-        service.generateKey { [serviceUid] keyId, err in
+        service.generateKey { keyId, err in
             guard let keyId = keyId, err == nil else {
                 error(err)
                 return
