@@ -109,6 +109,10 @@ public struct DefaultNetworkHelper: _NetworkHelper {
     }
 
     public func adapt(_ urlRequest: URLRequest, for session: Session, uid: String, keyId: String, completion: @escaping (Result<URLRequest, Error>) -> Void) {
+        guard urlRequest.url?.absoluteString.hasPrefix(baseUrl.absoluteString) == true else {
+            completion(.success(urlRequest))
+        }
+
         var mutableRequest = urlRequest
         mutableRequest.addHeader(.uid(value: uid))
 
