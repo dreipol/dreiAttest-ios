@@ -45,12 +45,6 @@ struct ServiceRequestHelper {
     }
 
     func adapt(_ urlRequest: URLRequest, for session: Session, uid: String, keyId: String, completion: @escaping (Result<URLRequest, Error>) -> Void) {
-        // decide whether we have to handle the request before checking headers so we can have multiple AttestationServices running at the same time for different
-        // baseUrls
-        guard shouldHanlde(urlRequest) else {
-            completion(.success(urlRequest))
-            return
-        }
         guard !urlRequest.headers.contains(where: { $0.name.starts(with: "dreiAttest-") }) else {
             completion(.failure(AttestError.illegalHeaders))
             return

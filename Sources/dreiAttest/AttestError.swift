@@ -21,7 +21,7 @@ public enum AttestError: Error {
             return .policyViolation
         case "dreiAttest_nonce_mismatch":
             return .policyViolation
-        case "dreiAttest_key_invalid":
+        case "dreiAttest_invalid_key":
             return .invalidKey
         default:
             return .internal

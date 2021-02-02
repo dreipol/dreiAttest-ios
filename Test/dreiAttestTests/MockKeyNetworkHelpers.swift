@@ -26,6 +26,24 @@ class KeyCountingNetworkHelper: _KeyNetworkHelper {
     }
 }
 
+class ForwardingKeyCountingNetworkHelper: _KeyNetworkHelper {
+    var registerCount = 0
+    let target: DefaultKeyNetworkHelper
+
+    required init(baseUrl: URL, sessionConfiguration: URLSessionConfiguration) {
+        target = DefaultKeyNetworkHelper(baseUrl: baseUrl, sessionConfiguration: sessionConfiguration)
+    }
+
+    func registerNewKey(keyId: String, uid: String, callback: @escaping () -> Void, error: @escaping (Error?) -> Void) {
+        registerCount += 1
+        target.registerNewKey(keyId: keyId, uid: uid, callback: callback, error: error)
+    }
+
+    func deregisterKey(_ keyId: String, for uid: String, success: @escaping () -> Void, error: @escaping (Error?) -> Void) {
+        target.deregisterKey(keyId, for: uid, success: success, error: error)
+    }
+}
+
 class AlwaysAcceptingKeyNetworkHelper: _KeyNetworkHelper {
     required init(baseUrl: URL, sessionConfiguration: URLSessionConfiguration) {}
 

@@ -273,4 +273,47 @@ class dreiAttestTests: XCTestCase {
         wait(for: [expectation], timeout: 10)
         XCTAssertEqual(service.keyNetworkHelper.registerCount, 0)
     }
+
+    func testKeyRenewal() throws {
+        guard let baseURL = URL(string: "https://dreipol.ch") else {
+            XCTFail()
+            return
+        }
+
+        let configuration = URLSessionConfiguration.af.default
+        configuration.protocolClasses = [MockingURLProtocol.self] + (configuration.protocolClasses ?? [])
+        let service = try AttestService(baseAddress: baseURL, uid: "renewal", validationLevel: .signOnly, config: Config(networkHelperType: ForwardingKeyCountingNetworkHelper.self, sessionConfiguration: configuration))
+
+        let snonce = UUID().uuidString
+        Mock(url: baseURL.appendingPathComponent("dreiAttest/nonce"), dataType: .html, statusCode: 200, data: [.get: snonce.data(using: .utf8) ?? Data()])
+            .register()
+        Mock(url: baseURL.appendingPathComponent("dreiAttest/key"), dataType: .html, statusCode: 200, data: [.post: Data()])
+            .register()
+        Mock(url: baseURL.appendingPathComponent("test"), dataType: .json, statusCode: 403, data: [.get: Data()], additionalHeaders: [HTTPHeader.errorHeaderName: "dreiAttest_invalid_key"])
+            .register()
+        Mock(url: URL(string: "https://drei.io/test")!, dataType: .json, statusCode: 403, data: [.get: Data()], additionalHeaders: [HTTPHeader.errorHeaderName: "dreiAttest_invalid_key"])
+            .register()
+
+        let expectation1 = XCTestExpectation()
+        let expectation2 = XCTestExpectation()
+        let session = Session(configuration: configuration, interceptor: service)
+
+
+        session.request(baseURL.appendingPathComponent("test"))
+            .validate()
+            .response { result in
+            expectation1.fulfill()
+        }.resume()
+        wait(for: [expectation1], timeout: 5)
+        XCTAssertEqual(service.keyNetworkHelper.registerCount, 2)
+
+        session.request(URL(string: "https://drei.io/test")!)
+            .validate()
+            .response { result in
+            expectation2.fulfill()
+        }.resume()
+
+        wait(for: [expectation2], timeout: 5)
+        XCTAssertEqual(service.keyNetworkHelper.registerCount, 2)
+    }
 }

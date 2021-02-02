@@ -91,15 +91,22 @@ public final class AttestService<KeyNetworkHelper: _KeyNetworkHelper>: RequestIn
     public func adapt(_ urlRequest: URLRequest, for session: Session, completion: @escaping (Result<URLRequest, Error>) -> Void) {
         if let sharedSecret = sharedSecret {
             serviceRequestHelper.adapt(urlRequest, for: session, uid: serviceUid, bypass: sharedSecret, completion: completion)
-        } else {
+        } else if serviceRequestHelper.shouldHanlde(urlRequest) {
+            // decide whether we have to handle the request early on (before checking headers) so we can have multiple AttestationServices
+            // running at the same time for different baseUrls
+
             getKeyId(callback: { keyId in
                 self.serviceRequestHelper.adapt(urlRequest, for: session, uid: self.serviceUid, keyId: keyId, completion: completion)
             }, error: { completion(.failure($0 ?? AttestError.internal)) })
+        } else {
+            completion(.success(urlRequest))
         }
     }
 
     public func retry(_ request: Request, for session: Session, dueTo error: Error, completion: @escaping (RetryResult) -> Void) {
-        guard request.response?.statusCode == 403,
+        guard let urlRequest = request.request,
+              serviceRequestHelper.shouldHanlde(urlRequest),
+              request.response?.statusCode == 403,
               let errorKey = request.response?.value(forHTTPHeaderField: HTTPHeader.errorHeaderName),
               AttestError.from(errorKey) == .invalidKey else {
             completion(.doNotRetry)
