@@ -16,14 +16,22 @@
   },
   "social_media_url": "https://twitter.com/dreipol",
   "platforms": {
-    "ios": "11.0"
+    "ios": "14.0"
   },
   "requires_arc": true,
   "ios": {
     "source_files": "Sources/dreiAttest/**/*.{swift}",
-    "frameworks": "Foundation"
+    "frameworks": [
+      "Foundation",
+      "DeviceCheck"
+    ]
   },
   "swift_versions": "5.0",
+  "dependencies": {
+    "Alamofire": [
+      "~> 5.4.0"
+    ]
+  },
   "info_plist": {
     "CFBundleIdentifier": "ch.dreipol.dreiattest"
   },
