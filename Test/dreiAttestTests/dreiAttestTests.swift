@@ -251,4 +251,26 @@ class dreiAttestTests: XCTestCase {
 
         wait(for: expectations, timeout: 10)
     }
+
+    func testBypass() throws {
+        let config = Config(networkHelperType: KeyCountingNetworkHelper.self, sharedSecret: "abc")
+        let service = try AttestService(baseAddress: URL(string: "https://dreipol.ch")!, uid: "user1", validationLevel: .signOnly, config: config)
+
+        let expectation = XCTestExpectation()
+
+        let request = URLRequest(url: URL(string: "https://dreipol.ch/test")!)
+        service.adapt(request, for: Session()) { result in
+            switch result {
+            case .success(let adapted):
+                XCTAssertEqual(adapted.allHTTPHeaderFields?["dreiAttest-sharedSecret"], "abc")
+                XCTAssertNotNil(adapted.allHTTPHeaderFields?["dreiAttest-uid"])
+            case .failure:
+                XCTFail()
+            }
+            expectation.fulfill()
+        }
+
+        wait(for: [expectation], timeout: 10)
+        XCTAssertEqual(service.keyNetworkHelper.registerCount, 0)
+    }
 }
