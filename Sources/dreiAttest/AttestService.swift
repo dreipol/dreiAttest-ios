@@ -32,7 +32,7 @@ public final class AttestService<KeyNetworkHelper: _KeyNetworkHelper>: RequestIn
         }
 
         keyNetworkHelper = config.networkHelperType.init(baseUrl: baseAddress, sessionConfiguration: config.sessionConfiguration)
-        serviceRequestHelper = ServiceRequestHelper(baseUrl: baseAddress,validationLevel: validationLevel)
+        serviceRequestHelper = ServiceRequestHelper(baseUrl: baseAddress, validationLevel: validationLevel)
         self.uid = uid
         sharedSecret = config.sharedSecret
     }

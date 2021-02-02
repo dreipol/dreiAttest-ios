@@ -31,7 +31,11 @@ public struct DefaultKeyNetworkHelper: _KeyNetworkHelper {
         self.sessionConfiguration = sessionConfiguration
     }
 
-    private func registerKey(with nonce: Data, uid: String, keyId: String, callback: @escaping () -> Void, error: @escaping (Error?) -> Void) {
+    private func registerKey(with nonce: Data,
+                             uid: String,
+                             keyId: String,
+                             callback: @escaping () -> Void,
+                             error: @escaping (Error?) -> Void) {
         service.attestKey(keyId, clientDataHash: nonce) { attestation, err in
             guard err == nil,
                   let attestation = attestation else {
@@ -44,7 +48,10 @@ public struct DefaultKeyNetworkHelper: _KeyNetworkHelper {
                 let payload: [String: Any] = ["pubkey": keyId,
                                               "attestation": attestation.base64EncodedString()]
                 let session = Session(configuration: sessionConfiguration)
-                try session.request(baseUrl: baseUrl, endpoint: Endpoints.registerKey, headers: headers, payload: payload).response { response in
+                try session.request(baseUrl: baseUrl,
+                                    endpoint: Endpoints.registerKey,
+                                    headers: headers,
+                                    payload: payload).response { response in
                     defer {
                         session.close()
                     }
@@ -54,7 +61,7 @@ public struct DefaultKeyNetworkHelper: _KeyNetworkHelper {
                         if response.response?.statusCode == 200 {
                             callback()
                         } else if let errorData = errorData,
-                                  let errorKey = String(data: errorData, encoding: .utf8){
+                                  let errorKey = String(data: errorData, encoding: .utf8) {
                             error(AttestError.from(errorKey))
                         } else {
                             error(AttestError.internal)
@@ -95,11 +102,14 @@ public struct DefaultKeyNetworkHelper: _KeyNetworkHelper {
             try doWithSNonce(uid: uid, success: { snonce in
                 do {
                     let deleteHeaders = HTTPHeaders([.uid(value: uid)])
-                    var request = try URLRequest(url: baseUrl.appendingPathComponent(Endpoints.deleteKey.name), method: Endpoints.deleteKey.method, headers: deleteHeaders)
+                    var request = try URLRequest(url: baseUrl.appendingPathComponent(Endpoints.deleteKey.name),
+                                                 method: Endpoints.deleteKey.method,
+                                                 headers: deleteHeaders)
                     request.httpBody = keyId.data(using: .utf8)
 
                     let requestHash = ServiceRequestHelper.requestHash(request)
-                    service.generateAssertion(keyId, clientDataHash: ServiceRequestHelper.nonce(requestHash, snonce: snonce)) { assertion, err in
+                    let dataHash = ServiceRequestHelper.nonce(requestHash, snonce: snonce)
+                    service.generateAssertion(keyId, clientDataHash: dataHash) { assertion, err in
                         guard let assertion = assertion, err == nil else {
                             error(err)
                             return

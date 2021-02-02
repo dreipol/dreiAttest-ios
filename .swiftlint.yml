@@ -22,6 +22,7 @@ disabled_rules:
   - function_body_length
   - type_body_length
   - trailing_comma
+  - conditional_returns_on_newline
 
 
 cyclomatic_complexity:
