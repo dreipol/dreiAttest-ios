@@ -12,6 +12,7 @@ public enum AttestError: Error {
     case `internal`
     case policyViolation
     case nonceMismatch
+    case invalidKey
     case illegalHeaders
 
     static func from(_ key: String) -> AttestError {
@@ -20,6 +21,8 @@ public enum AttestError: Error {
             return .policyViolation
         case "dreiAttest_nonce_mismatch":
             return .policyViolation
+        case "dreiAttest_key_invalid":
+            return .invalidKey
         default:
             return .internal
         }

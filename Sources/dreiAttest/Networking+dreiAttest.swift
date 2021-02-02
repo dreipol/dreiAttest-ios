@@ -32,6 +32,10 @@ extension HTTPHeader {
     static func bypass(value: String) -> HTTPHeader {
         HTTPHeader(name: "dreiAttest-sharedSecret", value: value)
     }
+
+    static var errorHeaderName: String {
+        "dreiAttest-error"
+    }
 }
 
 extension Session {

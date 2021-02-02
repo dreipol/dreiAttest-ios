@@ -11,7 +11,7 @@ import Alamofire
 
 private let keyGenerationLock = NSLock()
 
-public final class AttestService<KeyNetworkHelper: _KeyNetworkHelper>: RequestAdapter {
+public final class AttestService<KeyNetworkHelper: _KeyNetworkHelper>: RequestInterceptor {
     public let uid: String
 
     let keyNetworkHelper: KeyNetworkHelper
@@ -95,6 +95,22 @@ public final class AttestService<KeyNetworkHelper: _KeyNetworkHelper>: RequestAd
             getKeyId(callback: { keyId in
                 self.serviceRequestHelper.adapt(urlRequest, for: session, uid: self.serviceUid, keyId: keyId, completion: completion)
             }, error: { completion(.failure($0 ?? AttestError.internal)) })
+        }
+    }
+
+    public func retry(_ request: Request, for session: Session, dueTo error: Error, completion: @escaping (RetryResult) -> Void) {
+        guard request.response?.statusCode == 403,
+              let errorKey = request.response?.value(forHTTPHeaderField: HTTPHeader.errorHeaderName),
+              AttestError.from(errorKey) == .invalidKey else {
+            completion(.doNotRetry)
+            return
+        }
+
+        UserDefaults.standard.keyIds[serviceUid] = nil
+        if request.retryCount == 0 {
+            completion(.retry)
+        } else {
+            completion(.doNotRetryWithError(AttestError.invalidKey))
         }
     }
 }
