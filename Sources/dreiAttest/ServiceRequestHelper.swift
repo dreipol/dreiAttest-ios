@@ -21,10 +21,33 @@ struct ServiceRequestHelper {
     let service = DCAppAttestService.shared
     let validationLevel: ValidationLevel
 
+    func shouldHanlde(_ urlRequest: URLRequest) -> Bool {
+        urlRequest.url?.isSubpath(of: baseUrl) == true
+    }
+
+    func adapt(_ urlRequest: URLRequest, for session: Session, uid: String, bypass sharedSecret: String, completion: (Result<URLRequest, Error>) -> Void) {
+        // decide whether we have to handle the request before checking headers so we can have multiple AttestationServices running at the same time for different
+        // baseUrls
+        guard shouldHanlde(urlRequest) else {
+            completion(.success(urlRequest))
+            return
+        }
+        guard !urlRequest.headers.contains(where: { $0.name.starts(with: "dreiAttest-") }) else {
+            completion(.failure(AttestError.illegalHeaders))
+            return
+        }
+
+        var mutableRequest = urlRequest
+        mutableRequest.addHeader(.uid(value: uid))
+        mutableRequest.addHeader(.bypass(value: sharedSecret))
+
+        completion(.success(mutableRequest))
+    }
+
     func adapt(_ urlRequest: URLRequest, for session: Session, uid: String, keyId: String, completion: @escaping (Result<URLRequest, Error>) -> Void) {
         // decide whether we have to handle the request before checking headers so we can have multiple AttestationServices running at the same time for different
         // baseUrls
-        guard urlRequest.url?.isSubpath(of: baseUrl) == true else {
+        guard shouldHanlde(urlRequest) else {
             completion(.success(urlRequest))
             return
         }

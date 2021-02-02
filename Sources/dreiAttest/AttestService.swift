@@ -17,6 +17,7 @@ public final class AttestService<KeyNetworkHelper: _KeyNetworkHelper>: RequestAd
     let keyNetworkHelper: KeyNetworkHelper
     let serviceRequestHelper: ServiceRequestHelper
     let service = DCAppAttestService.shared
+    let sharedSecret: String?
     var serviceUid: String {
         UserDefaults.standard.serviceUid(for: uid)
     }
@@ -26,13 +27,14 @@ public final class AttestService<KeyNetworkHelper: _KeyNetworkHelper>: RequestAd
             fatalError("not yet implemented!")
         }
 
-        guard service.isSupported else {
+        guard service.isSupported || config.sharedSecret != nil else {
             throw AttestError.notSupported
         }
 
         keyNetworkHelper = config.networkHelperType.init(baseUrl: baseAddress, sessionConfiguration: config.sessionConfiguration)
         serviceRequestHelper = ServiceRequestHelper(baseUrl: baseAddress,validationLevel: validationLevel)
         self.uid = uid
+        sharedSecret = config.sharedSecret
     }
 
     func generateNewKey(callback: @escaping (String) -> Void, error: @escaping (Error?) -> Void) {
@@ -87,14 +89,21 @@ public final class AttestService<KeyNetworkHelper: _KeyNetworkHelper>: RequestAd
     }
 
     public func adapt(_ urlRequest: URLRequest, for session: Session, completion: @escaping (Result<URLRequest, Error>) -> Void) {
-        getKeyId(callback: { keyId in
-            self.serviceRequestHelper.adapt(urlRequest, for: session, uid: self.serviceUid, keyId: keyId, completion: completion)
-        }, error: { completion(.failure($0 ?? AttestError.internal)) })
+        if let sharedSecret = sharedSecret {
+            serviceRequestHelper.adapt(urlRequest, for: session, uid: serviceUid, bypass: sharedSecret, completion: completion)
+        } else {
+            getKeyId(callback: { keyId in
+                self.serviceRequestHelper.adapt(urlRequest, for: session, uid: self.serviceUid, keyId: keyId, completion: completion)
+            }, error: { completion(.failure($0 ?? AttestError.internal)) })
+        }
     }
 }
 
 public extension AttestService where KeyNetworkHelper == DefaultKeyNetworkHelper {
-    convenience init(baseAddress: URL, uid: String = "", validationLevel: ValidationLevel) throws {
-        try self.init(baseAddress: baseAddress, uid: uid, validationLevel: validationLevel, config: Config())
+    convenience init(baseAddress: URL,
+                     uid: String = "",
+                     validationLevel: ValidationLevel,
+                     bypass sharedSecret: String? = ProcessInfo.processInfo.environment["DREIATTEST_BYPASS_SECRET"]) throws {
+        try self.init(baseAddress: baseAddress, uid: uid, validationLevel: validationLevel, config: Config(sharedSecret: sharedSecret))
     }
 }

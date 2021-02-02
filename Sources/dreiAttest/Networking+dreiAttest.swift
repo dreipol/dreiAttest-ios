@@ -28,6 +28,10 @@ extension HTTPHeader {
     static func signature(value: String) -> HTTPHeader {
         HTTPHeader(name: "dreiAttest-signature", value: value)
     }
+
+    static func bypass(value: String) -> HTTPHeader {
+        HTTPHeader(name: "dreiAttest-sharedSecret", value: value)
+    }
 }
 
 extension Session {
