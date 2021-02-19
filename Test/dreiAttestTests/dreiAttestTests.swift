@@ -129,9 +129,9 @@ class dreiAttestTests: XCTestCase {
         let service = try AttestService(baseAddress: baseURL, uid: "registration", validationLevel: .signOnly, config: Config(networkHelperType: DefaultKeyNetworkHelper.self, sessionConfiguration: configuration))
 
         let snonce = UUID().uuidString
-        Mock(url: baseURL.appendingPathComponent("dreiAttest/nonce"), dataType: .html, statusCode: 200, data: [.get: snonce.data(using: .utf8) ?? Data()])
+        Mock(url: baseURL.appendingPathComponent("dreiattest/nonce"), dataType: .html, statusCode: 200, data: [.get: snonce.data(using: .utf8) ?? Data()])
             .register()
-        var registration = Mock(url: baseURL.appendingPathComponent("dreiAttest/key"), dataType: .html, statusCode: 200, data: [.post: Data()])
+        var registration = Mock(url: baseURL.appendingPathComponent("dreiattest/key"), dataType: .html, statusCode: 200, data: [.post: Data()])
         registration.onRequest = { _, body in
             guard let attestationString = body?["attestation"] as? String,
                   let attestation = Data(base64Encoded: attestationString),
@@ -200,8 +200,9 @@ class dreiAttestTests: XCTestCase {
         service1.adapt(request1, for: Session()) {
             switch $0 {
             case .success(let request):
-                XCTAssertNotNil(request.allHTTPHeaderFields?["dreiAttest-signature"])
-                XCTAssertEqual(request.allHTTPHeaderFields?["dreiAttest-uid"], service1.serviceUid)
+                XCTAssertNotNil(request.allHTTPHeaderFields?["Dreiattest-signature"])
+                XCTAssertNotNil(request.allHTTPHeaderFields?["Dreiattest-nonce"])
+                XCTAssertEqual(request.allHTTPHeaderFields?["Dreiattest-uid"], service1.serviceUid)
             default:
                 XCTFail()
             }
@@ -262,8 +263,8 @@ class dreiAttestTests: XCTestCase {
         service.adapt(request, for: Session()) { result in
             switch result {
             case .success(let adapted):
-                XCTAssertEqual(adapted.allHTTPHeaderFields?["dreiAttest-sharedSecret"], "abc")
-                XCTAssertNotNil(adapted.allHTTPHeaderFields?["dreiAttest-uid"])
+                XCTAssertEqual(adapted.allHTTPHeaderFields?["Dreiattest-shared-secret"], "abc")
+                XCTAssertNotNil(adapted.allHTTPHeaderFields?["Dreiattest-uid"])
             case .failure:
                 XCTFail()
             }
@@ -285,9 +286,9 @@ class dreiAttestTests: XCTestCase {
         let service = try AttestService(baseAddress: baseURL, uid: "renewal", validationLevel: .signOnly, config: Config(networkHelperType: ForwardingKeyCountingNetworkHelper.self, sessionConfiguration: configuration))
 
         let snonce = UUID().uuidString
-        Mock(url: baseURL.appendingPathComponent("dreiAttest/nonce"), dataType: .html, statusCode: 200, data: [.get: snonce.data(using: .utf8) ?? Data()])
+        Mock(url: baseURL.appendingPathComponent("dreiattest/nonce"), dataType: .html, statusCode: 200, data: [.get: snonce.data(using: .utf8) ?? Data()])
             .register()
-        Mock(url: baseURL.appendingPathComponent("dreiAttest/key"), dataType: .html, statusCode: 200, data: [.post: Data()])
+        Mock(url: baseURL.appendingPathComponent("dreiattest/key"), dataType: .html, statusCode: 200, data: [.post: Data()])
             .register()
         Mock(url: baseURL.appendingPathComponent("test"), dataType: .json, statusCode: 403, data: [.get: Data()], additionalHeaders: [HTTPHeader.errorHeaderName: "dreiAttest_invalid_key"])
             .register()

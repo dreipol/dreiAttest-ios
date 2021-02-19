@@ -14,27 +14,31 @@ struct Endpoint {
 }
 
 struct Endpoints {
-    static let registerKey = Endpoint(name: "dreiAttest/key", method: .post)
-    static let deleteKey = Endpoint(name: "dreiAttest/key", method: .delete)
-    static let keyRegistrationNonce = Endpoint(name: "dreiAttest/nonce", method: .get)
-    static let requestNonce = Endpoint(name: "dreiAttest/request_nonce", method: .get)
+    static let registerKey = Endpoint(name: "dreiattest/key", method: .post)
+    static let deleteKey = Endpoint(name: "dreiattest/key", method: .delete)
+    static let keyRegistrationNonce = Endpoint(name: "dreiattest/nonce", method: .get)
+    static let requestNonce = Endpoint(name: "dreiattest/request-nonce", method: .get)
 }
 
 extension HTTPHeader {
     static func uid(value: String) -> HTTPHeader {
-        HTTPHeader(name: "dreiAttest-uid", value: value)
+        HTTPHeader(name: "Dreiattest-uid", value: value)
+    }
+
+    static func snonce(value: String) -> HTTPHeader {
+        HTTPHeader(name: "Dreiattest-nonce", value: value)
     }
 
     static func signature(value: String) -> HTTPHeader {
-        HTTPHeader(name: "dreiAttest-signature", value: value)
+        HTTPHeader(name: "Dreiattest-signature", value: value)
     }
 
     static func bypass(value: String) -> HTTPHeader {
-        HTTPHeader(name: "dreiAttest-sharedSecret", value: value)
+        HTTPHeader(name: "Dreiattest-shared-secret", value: value)
     }
 
     static var errorHeaderName: String {
-        "dreiAttest-error"
+        "Dreiattest-error"
     }
 }
 

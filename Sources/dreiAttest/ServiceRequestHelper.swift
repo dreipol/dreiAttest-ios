@@ -36,7 +36,7 @@ struct ServiceRequestHelper {
             completion(.success(urlRequest))
             return
         }
-        guard !urlRequest.headers.contains(where: { $0.name.starts(with: "dreiAttest-") }) else {
+        guard !urlRequest.headers.contains(where: { $0.name.starts(with: "Dreiattest-") }) else {
             completion(.failure(AttestError.illegalHeaders))
             return
         }
@@ -53,7 +53,7 @@ struct ServiceRequestHelper {
                uid: String,
                keyId: String,
                completion: @escaping (Result<URLRequest, Error>) -> Void) {
-        guard !urlRequest.headers.contains(where: { $0.name.starts(with: "dreiAttest-") }) else {
+        guard !urlRequest.headers.contains(where: { $0.name.starts(with: "Dreiattest-") }) else {
             completion(.failure(AttestError.illegalHeaders))
             return
         }
@@ -75,6 +75,7 @@ struct ServiceRequestHelper {
                 }
 
                 mutableRequest.addHeader(.signature(value: assertion.base64EncodedString()))
+                mutableRequest.addHeader(.snonce(value: snonce))
                 completion(.success(mutableRequest))
             }
         }

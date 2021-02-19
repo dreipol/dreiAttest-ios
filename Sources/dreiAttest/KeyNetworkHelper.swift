@@ -31,11 +31,16 @@ public struct DefaultKeyNetworkHelper: _KeyNetworkHelper {
         self.sessionConfiguration = sessionConfiguration
     }
 
-    private func registerKey(with nonce: Data,
+    private func registerKey(with snonce: String,
                              uid: String,
                              keyId: String,
                              callback: @escaping () -> Void,
                              error: @escaping (Error?) -> Void) {
+        guard let nonce = Self.nonce(uid: uid, keyId: keyId, snonce: snonce) else {
+            error(AttestError.internal)
+            return
+        }
+
         service.attestKey(keyId, clientDataHash: nonce) { attestation, err in
             guard err == nil,
                   let attestation = attestation else {
@@ -44,9 +49,10 @@ public struct DefaultKeyNetworkHelper: _KeyNetworkHelper {
             }
 
             do {
-                let headers = HTTPHeaders([.uid(value: uid)])
-                let payload: [String: Any] = ["pubkey": keyId,
-                                              "attestation": attestation.base64EncodedString()]
+                let headers = HTTPHeaders([.uid(value: uid), .snonce(value: snonce)])
+                let payload: [String: Any] = ["key_id": keyId,
+                                              "attestation": attestation.base64EncodedString(),
+                                              "driver": "apple"]
                 let session = Session(configuration: sessionConfiguration)
                 try session.request(baseUrl: baseUrl,
                                     endpoint: Endpoints.registerKey,
@@ -83,12 +89,7 @@ public struct DefaultKeyNetworkHelper: _KeyNetworkHelper {
     public func registerNewKey(keyId: String, uid: String, callback: @escaping () -> Void, error: @escaping (Error?) -> Void) {
         do {
             try doWithSNonce(uid: uid, success: { snonce in
-                guard let nonce = Self.nonce(uid: uid, keyId: keyId, snonce: snonce) else {
-                    error(AttestError.internal)
-                    return
-                }
-
-                registerKey(with: nonce, uid: uid, keyId: keyId, callback: callback, error: error)
+                registerKey(with: snonce, uid: uid, keyId: keyId, callback: callback, error: error)
             }, error: error)
         } catch let err {
             error(err)
@@ -101,7 +102,7 @@ public struct DefaultKeyNetworkHelper: _KeyNetworkHelper {
         do {
             try doWithSNonce(uid: uid, success: { snonce in
                 do {
-                    let deleteHeaders = HTTPHeaders([.uid(value: uid)])
+                    let deleteHeaders = HTTPHeaders([.uid(value: uid), .snonce(value: snonce)])
                     var request = try URLRequest(url: baseUrl.appendingPathComponent(Endpoints.deleteKey.name),
                                                  method: Endpoints.deleteKey.method,
                                                  headers: deleteHeaders)
