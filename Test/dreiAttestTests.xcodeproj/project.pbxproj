@@ -126,13 +126,9 @@
 		C744063025B5722B00FC30B2 /* dreiAttest */ = {
 			isa = PBXGroup;
 			children = (
+				C7CD8B4725DF9F9D00A0940A /* Helpers */,
+				C7CD8B4625DF9F7A00A0940A /* Util */,
 				C744063125B5722B00FC30B2 /* AttestService.swift */,
-				C744063425B5760B00FC30B2 /* AttestError.swift */,
-				C744063725B5773900FC30B2 /* UserDefaults+dreiAttest.swift */,
-				C77A2CD625B5C29D0039FED4 /* KeyNetworkHelper.swift */,
-				C77A2CD925B5C2CF0039FED4 /* Config.swift */,
-				C7599D3125C823710016F99E /* Networking+dreiAttest.swift */,
-				C7599D3525C83C1B0016F99E /* ServiceRequestHelper.swift */,
 			);
 			name = dreiAttest;
 			path = ../Sources/dreiAttest;
@@ -156,6 +152,26 @@
 				C7639B6D25B6D9DC009D2978 /* Preview Assets.xcassets */,
 			);
 			path = "Preview Content";
+			sourceTree = "<group>";
+		};
+		C7CD8B4625DF9F7A00A0940A /* Util */ = {
+			isa = PBXGroup;
+			children = (
+				C744063425B5760B00FC30B2 /* AttestError.swift */,
+				C77A2CD925B5C2CF0039FED4 /* Config.swift */,
+				C7599D3125C823710016F99E /* Networking+dreiAttest.swift */,
+				C744063725B5773900FC30B2 /* UserDefaults+dreiAttest.swift */,
+			);
+			path = Util;
+			sourceTree = "<group>";
+		};
+		C7CD8B4725DF9F9D00A0940A /* Helpers */ = {
+			isa = PBXGroup;
+			children = (
+				C7599D3525C83C1B0016F99E /* ServiceRequestHelper.swift */,
+				C77A2CD625B5C29D0039FED4 /* KeyNetworkHelper.swift */,
+			);
+			path = Helpers;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
