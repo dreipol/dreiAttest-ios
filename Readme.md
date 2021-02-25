@@ -1,5 +1,7 @@
 # dreiAttest
 
+[![Maintainability](https://api.codeclimate.com/v1/badges/739700599784ebf30814/maintainability)](https://codeclimate.com/repos/6037772f371217014d007062/maintainability)
+
 dreiAttest implements Apple's [DeviceCheck Framework](https://developer.apple.com/documentation/devicecheck) to allow you to verify that request made to your server come from an actual device. [Android and Kotlin Multiplatform versions](https://github.com/dreipol/dreiAttest-android) are also available. To use dreiAttest you need to run [dreiAttest on your server](https://github.com/dreipol/dreiAttest-django).
 
 Typically only certain endpoints over which sensitive data can be accessed are protected by dreiAttest. For this reason you define a base URL: requests starting with this base URL are handled by dreiAttest, while requests to other endpoints are simply forwarded to your server. For example if you define the base URL `https://example.com/attested`:
