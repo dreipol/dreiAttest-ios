@@ -33,4 +33,4 @@ exclude_patterns:
  - "**/*_test.go"
  - "**/*.d.ts"
  - "**/Pods/"
- - "**/Tests/"
+ - "**/Test/"
