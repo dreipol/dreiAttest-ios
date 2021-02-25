@@ -19,8 +19,6 @@ opt_in_rules:
 disabled_rules:
   # - todo
   - identifier_name # Example: Variable name should only contain alphanumeric characters: 'fileName_01'
-  - function_body_length
-  - type_body_length
   - trailing_comma
   - conditional_returns_on_newline
 
@@ -35,14 +33,6 @@ line_length:
   error: 220
   ignores_comments: true
   ignores_urls: true
-
-function_body_length:
-  warning: 35
-  error: 100
-
-function_parameter_count:
-    warning: 5
-    error: 10
 
 # Set output type.
 reporter: "xcode"
