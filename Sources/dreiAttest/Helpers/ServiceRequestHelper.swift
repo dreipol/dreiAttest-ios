@@ -48,6 +48,25 @@ struct ServiceRequestHelper {
         completion(.success(mutableRequest))
     }
 
+    private func sign(request: URLRequest,
+                      requestHash: Data,
+                      snonce: String,
+                      keyId: String,
+                      completion: @escaping (Result<URLRequest, Error>) -> Void) {
+        var mutableRequest = request
+        let nonce = Self.nonce(requestHash, snonce: snonce)
+        service.generateAssertion(keyId, clientDataHash: nonce) { assertion, error in
+            guard let assertion = assertion, error == nil else {
+                completion(.failure(error ?? AttestError.internal))
+                return
+            }
+
+            mutableRequest.addHeader(.signature(value: assertion.base64EncodedString()))
+            mutableRequest.addHeader(.snonce(value: snonce))
+            completion(.success(mutableRequest))
+        }
+    }
+
     func adapt(_ urlRequest: URLRequest,
                for session: Session,
                uid: String,
@@ -65,25 +84,12 @@ struct ServiceRequestHelper {
         var snonce = defaultRequestNonce
         var jobsToDo: Int32 = validationLevel == .withNonce ? 2 : 1
 
-        func finish() {
-            // swiftlint:disable:next force_unwrapping
-            let nonce = Self.nonce(requestHash!, snonce: snonce)
-            service.generateAssertion(keyId, clientDataHash: nonce) { assertion, error in
-                guard let assertion = assertion, error == nil else {
-                    completion(.failure(error ?? AttestError.internal))
-                    return
-                }
-
-                mutableRequest.addHeader(.signature(value: assertion.base64EncodedString()))
-                mutableRequest.addHeader(.snonce(value: snonce))
-                completion(.success(mutableRequest))
-            }
-        }
-
         DispatchQueue.global(qos: .userInitiated).async {
-            requestHash = Self.requestHash(mutableRequest)
+            let hash = Self.requestHash(mutableRequest)
+            requestHash = hash
             if OSAtomicDecrement32(&jobsToDo) == 0 {
-                finish()
+
+                sign(request: mutableRequest, requestHash: hash, snonce: snonce, keyId: keyId, completion: completion)
             }
         }
 
@@ -92,7 +98,8 @@ struct ServiceRequestHelper {
                 snonce = $0
 
                 if OSAtomicDecrement32(&jobsToDo) == 0 {
-                    finish()
+                    // swiftlint:disable:next force_unwrapping
+                    sign(request: mutableRequest, requestHash: requestHash!, snonce: snonce, keyId: keyId, completion: completion)
                 }
             }, error: { completion(.failure($0 ?? AttestError.internal)) })
         }
