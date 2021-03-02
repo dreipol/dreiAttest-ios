@@ -105,7 +105,8 @@ public struct DefaultKeyNetworkHelper: _KeyNetworkHelper {
     }
 
     private func signAndSend(request: URLRequest,
-                             uid: String, keyId: String,
+                             uid: String,
+                             keyId: String,
                              success: @escaping () -> Void,
                              error: @escaping (Error?) -> Void) throws {
         var request = request
