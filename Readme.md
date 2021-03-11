@@ -44,7 +44,7 @@ do {
     }
 }
 ```
-If your app doesn't use login you can also omit the `uid`. In that case dreiAttest will generate an identifier that uniquely identifies the current device for you.
+If your app doesn't use login you can also omit the `uid`. In that case dreiAttest will generate an identifier that uniquely identifies the current installation for you.
 
 You can now use the [Alamofire session](https://github.com/Alamofire/Alamofire) as you normally would.
 
