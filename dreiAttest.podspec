@@ -7,12 +7,12 @@ Pod::Spec.new do |s|
   s.author           = { "dreipol GmbH" => "dev@dreipol.ch" }
   s.source           = { git: "https://github.com/dreipol/dreiAttest-ios.git", tag: s.version.to_s }
   s.social_media_url = 'https://twitter.com/dreipol'
-  s.ios.deployment_target = '11.0'
+  s.ios.deployment_target = '14.0'
   s.requires_arc = true
   s.ios.source_files = 'Sources/dreiAttest/**/*.{swift}'
   s.swift_version = '5.0'
-  s.ios.frameworks = 'Foundation'
-  # s.dependency 'Eureka', '~> 4.0'
+  s.ios.frameworks = 'Foundation', 'DeviceCheck'
+  s.dependency 'Alamofire', '~> 5.0'
   s.info_plist = {
     'CFBundleIdentifier' => 'ch.dreipol.dreiattest'
   }

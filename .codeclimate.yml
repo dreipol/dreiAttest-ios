@@ -1,0 +1,36 @@
+version: "2"         # required to adjust maintainability checks
+checks:
+  similar-code:
+    config:
+      threshold: 120
+  identical-code:
+    config:
+      threshold: 120
+  method-complexity:
+    config:
+      threshold: 10
+  method-lines:
+    config:
+      threshold: 35
+  argument-count:
+    config:
+      threshold: 5
+plugins:
+  swiftlint:
+    enabled: true
+
+exclude_patterns:
+ - "config/"
+ - "db/"
+ - "dist/"
+ - "features/"
+ - "**/node_modules/"
+ - "script/"
+ - "**/spec/"
+ - "**/test/"
+ - "**/tests/"
+ - "**/vendor/"
+ - "**/*_test.go"
+ - "**/*.d.ts"
+ - "**/Pods/"
+ - "**/Test/"

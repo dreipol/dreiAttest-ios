@@ -1,15 +1,22 @@
 PODS:
-  - dreiAttest (0.0.1)
+  - Alamofire (5.4.1)
+  - dreiAttest (0.0.1):
+    - Alamofire (~> 5.4.0)
 
 DEPENDENCIES:
   - dreiAttest (from `../..`)
+
+SPEC REPOS:
+  trunk:
+    - Alamofire
 
 EXTERNAL SOURCES:
   dreiAttest:
     :path: "../.."
 
 SPEC CHECKSUMS:
-  dreiAttest: f9e714454dfeb26b13b2287063e467f25a2c2ea9
+  Alamofire: 2291f7d21ca607c491dd17642e5d40fdcda0e65c
+  dreiAttest: df955cabf487cb1549dba1988b7b09450deb66a3
 
 PODFILE CHECKSUM: ea74e130209b35da6016e95150b2128f964b6aec
 
