@@ -10,7 +10,6 @@ import Alamofire
 import CryptoKit
 import DeviceCheck
 
-// TODO: make sealed if this proposal is ever accepted: https://forums.swift.org/t/sealed-protocols/19118
 protocol KeyNetworkHelper {
     init(baseUrl: URL, sessionConfiguration: URLSessionConfiguration)
 
@@ -23,9 +22,6 @@ struct DefaultKeyNetworkHelper: KeyNetworkHelper {
     let service = DCAppAttestService.shared
     let sessionConfiguration: URLSessionConfiguration
 
-    /**
-     Do not use!
-     */
     init(baseUrl: URL, sessionConfiguration: URLSessionConfiguration) {
         self.baseUrl = baseUrl
         self.sessionConfiguration = sessionConfiguration
@@ -90,10 +86,6 @@ struct DefaultKeyNetworkHelper: KeyNetworkHelper {
         }
     }
 
-    /**
-     Do not use!
-     */
-    // TODO: make internal when _NetworkHelper is sealed
     func registerNewKey(keyId: String, uid: String, callback: @escaping () -> Void, error: @escaping (Error?) -> Void) {
         do {
             try executeWithSNonce(uid: uid, success: { snonce in
