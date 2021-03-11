@@ -10,7 +10,7 @@ import Alamofire
 import DeviceCheck
 import CryptoKit
 
-class KeyCountingNetworkHelper: _KeyNetworkHelper {
+class KeyCountingNetworkHelper: KeyNetworkHelper {
     var registerCount = 0
 
     required init(baseUrl: URL, sessionConfiguration: URLSessionConfiguration) {}
@@ -26,7 +26,7 @@ class KeyCountingNetworkHelper: _KeyNetworkHelper {
     }
 }
 
-class ForwardingKeyCountingNetworkHelper: _KeyNetworkHelper {
+class ForwardingKeyCountingNetworkHelper: KeyNetworkHelper {
     var registerCount = 0
     let target: DefaultKeyNetworkHelper
 
@@ -44,7 +44,7 @@ class ForwardingKeyCountingNetworkHelper: _KeyNetworkHelper {
     }
 }
 
-class AlwaysAcceptingKeyNetworkHelper: _KeyNetworkHelper {
+class AlwaysAcceptingKeyNetworkHelper: KeyNetworkHelper {
     required init(baseUrl: URL, sessionConfiguration: URLSessionConfiguration) {}
 
     func registerNewKey(keyId: String, uid: String, callback: @escaping () -> Void, error: @escaping (Error?) -> Void) {

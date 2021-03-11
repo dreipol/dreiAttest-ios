@@ -13,32 +13,36 @@ struct Endpoint {
     let method: HTTPMethod
 }
 
+private let endpointBase = "dreiattest"
+
 struct Endpoints {
-    static let registerKey = Endpoint(name: "dreiattest/key", method: .post)
-    static let deleteKey = Endpoint(name: "dreiattest/key", method: .delete)
-    static let keyRegistrationNonce = Endpoint(name: "dreiattest/nonce", method: .get)
-    static let requestNonce = Endpoint(name: "dreiattest/request-nonce", method: .get)
+    static let registerKey = Endpoint(name: "\(endpointBase)/key", method: .post)
+    static let deleteKey = Endpoint(name: "\(endpointBase)/key", method: .delete)
+    static let keyRegistrationNonce = Endpoint(name: "\(endpointBase)/nonce", method: .get)
+    static let requestNonce = Endpoint(name: "\(endpointBase)/request-nonce", method: .get)
 }
+
+private let headerPrefix = "Dreiattest"
 
 extension HTTPHeader {
     static func uid(value: String) -> HTTPHeader {
-        HTTPHeader(name: "Dreiattest-uid", value: value)
+        HTTPHeader(name: "\(headerPrefix)-uid", value: value)
     }
 
     static func snonce(value: String) -> HTTPHeader {
-        HTTPHeader(name: "Dreiattest-nonce", value: value)
+        HTTPHeader(name: "\(headerPrefix)-nonce", value: value)
     }
 
     static func signature(value: String) -> HTTPHeader {
-        HTTPHeader(name: "Dreiattest-signature", value: value)
+        HTTPHeader(name: "\(headerPrefix)-signature", value: value)
     }
 
     static func bypass(value: String) -> HTTPHeader {
-        HTTPHeader(name: "Dreiattest-shared-secret", value: value)
+        HTTPHeader(name: "\(headerPrefix)-shared-secret", value: value)
     }
 
     static var errorHeaderName: String {
-        "Dreiattest-error"
+        "\(headerPrefix)-error"
     }
 }
 

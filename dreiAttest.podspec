@@ -12,7 +12,7 @@ Pod::Spec.new do |s|
   s.ios.source_files = 'Sources/dreiAttest/**/*.{swift}'
   s.swift_version = '5.0'
   s.ios.frameworks = 'Foundation', 'DeviceCheck'
-  s.dependency 'Alamofire', '~> 5.4.0'
+  s.dependency 'Alamofire', '~> 5.0'
   s.info_plist = {
     'CFBundleIdentifier' => 'ch.dreipol.dreiattest'
   }

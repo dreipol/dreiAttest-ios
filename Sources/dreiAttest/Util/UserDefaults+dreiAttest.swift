@@ -16,7 +16,7 @@ enum Key {
     }
 }
 
-struct SimulatedDictionary {
+struct DictionaryLikeAccessor {
     let userDefaults: UserDefaults
     let keyGenerator: (String) -> Key
 
@@ -36,12 +36,13 @@ extension UserDefaults {
             return serviceUid
         }
 
-        let serviceUid = "\(uid);\(UUID().uuidString)"
+        let authenticationSessionId = UUID().uuidString
+        let serviceUid = "\(uid);\(authenticationSessionId)"
         setValue(serviceUid, forKey: Key.uid(uid).key)
         return serviceUid
     }
 
-    var keyIds: SimulatedDictionary {
-        SimulatedDictionary(userDefaults: self, keyGenerator: Key.keyId(uid:))
+    var keyIds: DictionaryLikeAccessor {
+        DictionaryLikeAccessor(userDefaults: self, keyGenerator: Key.keyId(uid:))
     }
 }

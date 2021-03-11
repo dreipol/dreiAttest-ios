@@ -11,14 +11,14 @@ import CryptoKit
 import DeviceCheck
 
 // TODO: make sealed if this proposal is ever accepted: https://forums.swift.org/t/sealed-protocols/19118
-public protocol _KeyNetworkHelper {
+protocol KeyNetworkHelper {
     init(baseUrl: URL, sessionConfiguration: URLSessionConfiguration)
 
     func registerNewKey(keyId: String, uid: String, callback: @escaping () -> Void, error: @escaping (Error?) -> Void)
     func deregisterKey(_ keyId: String, for uid: String, success: @escaping () -> Void, error: @escaping (Error?) -> Void)
 }
 
-public struct DefaultKeyNetworkHelper: _KeyNetworkHelper {
+struct DefaultKeyNetworkHelper: KeyNetworkHelper {
     let baseUrl: URL
     let service = DCAppAttestService.shared
     let sessionConfiguration: URLSessionConfiguration
@@ -26,7 +26,7 @@ public struct DefaultKeyNetworkHelper: _KeyNetworkHelper {
     /**
      Do not use!
      */
-    public init(baseUrl: URL, sessionConfiguration: URLSessionConfiguration) {
+    init(baseUrl: URL, sessionConfiguration: URLSessionConfiguration) {
         self.baseUrl = baseUrl
         self.sessionConfiguration = sessionConfiguration
     }
@@ -94,9 +94,9 @@ public struct DefaultKeyNetworkHelper: _KeyNetworkHelper {
      Do not use!
      */
     // TODO: make internal when _NetworkHelper is sealed
-    public func registerNewKey(keyId: String, uid: String, callback: @escaping () -> Void, error: @escaping (Error?) -> Void) {
+    func registerNewKey(keyId: String, uid: String, callback: @escaping () -> Void, error: @escaping (Error?) -> Void) {
         do {
-            try doWithSNonce(uid: uid, success: { snonce in
+            try executeWithSNonce(uid: uid, success: { snonce in
                 registerKey(with: snonce, uid: uid, keyId: keyId, callback: callback, error: error)
             }, error: error)
         } catch let err {
@@ -111,7 +111,7 @@ public struct DefaultKeyNetworkHelper: _KeyNetworkHelper {
                              error: @escaping (Error?) -> Void) throws {
         var request = request
 
-        try doWithSNonce(uid: uid, success: { snonce in
+        try executeWithSNonce(uid: uid, success: { snonce in
             request.addHeader(.snonce(value: snonce))
 
             let requestHash = ServiceRequestHelper.requestHash(request)
@@ -139,7 +139,7 @@ public struct DefaultKeyNetworkHelper: _KeyNetworkHelper {
         }, error: error)
     }
 
-    public func deregisterKey(_ keyId: String, for uid: String, success: @escaping () -> Void, error: @escaping (Error?) -> Void) {
+    func deregisterKey(_ keyId: String, for uid: String, success: @escaping () -> Void, error: @escaping (Error?) -> Void) {
         UserDefaults.standard.keyIds[uid] = nil
 
         do {
@@ -154,7 +154,7 @@ public struct DefaultKeyNetworkHelper: _KeyNetworkHelper {
         }
     }
 
-    func doWithSNonce(uid: String, success: @escaping (String) -> Void, error: @escaping (Error?) -> Void) throws {
+    func executeWithSNonce(uid: String, success: @escaping (String) -> Void, error: @escaping (Error?) -> Void) throws {
         let session = Session(configuration: sessionConfiguration)
         let getNonceHeaders = HTTPHeaders([.uid(value: uid), .accept("text/plain")])
         try session.request(baseUrl: baseUrl, endpoint: Endpoints.keyRegistrationNonce, headers: getNonceHeaders)

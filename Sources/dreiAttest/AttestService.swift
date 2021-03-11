@@ -16,7 +16,7 @@ let keyGenerationQueue: OperationQueue = {
     return queue
 }()
 
-public final class AttestService<KeyNetworkHelper: _KeyNetworkHelper>: RequestInterceptor {
+public final class AttestService: RequestInterceptor {
     public let uid: String
 
     let keyNetworkHelper: KeyNetworkHelper
@@ -34,7 +34,7 @@ public final class AttestService<KeyNetworkHelper: _KeyNetworkHelper>: RequestIn
         }
     }
 
-    init(baseAddress: URL, uid: String, validationLevel: ValidationLevel, config: Config<KeyNetworkHelper>) throws {
+    init<KNH: KeyNetworkHelper>(baseAddress: URL, uid: String, validationLevel: ValidationLevel, config: Config<KNH>) throws {
         guard validationLevel == .signOnly else {
             fatalError("not yet implemented!")
         }
@@ -47,6 +47,13 @@ public final class AttestService<KeyNetworkHelper: _KeyNetworkHelper>: RequestIn
         serviceRequestHelper = ServiceRequestHelper(baseUrl: baseAddress, validationLevel: validationLevel)
         self.uid = uid
         sharedSecret = config.sharedSecret
+    }
+
+    public convenience init(baseAddress: URL,
+                            uid: String = "",
+                            validationLevel: ValidationLevel,
+                            bypass sharedSecret: String? = ProcessInfo.processInfo.environment["DREIATTEST_BYPASS_SECRET"]) throws {
+        try self.init(baseAddress: baseAddress, uid: uid, validationLevel: validationLevel, config: Config(sharedSecret: sharedSecret))
     }
 
     func generateNewKey(callback: @escaping (String) -> Void, error: @escaping (Error?) -> Void) {
@@ -135,14 +142,5 @@ public final class AttestService<KeyNetworkHelper: _KeyNetworkHelper>: RequestIn
         } else {
             completion(.doNotRetryWithError(AttestError.invalidKey))
         }
-    }
-}
-
-public extension AttestService where KeyNetworkHelper == DefaultKeyNetworkHelper {
-    convenience init(baseAddress: URL,
-                     uid: String = "",
-                     validationLevel: ValidationLevel,
-                     bypass sharedSecret: String? = ProcessInfo.processInfo.environment["DREIATTEST_BYPASS_SECRET"]) throws {
-        try self.init(baseAddress: baseAddress, uid: uid, validationLevel: validationLevel, config: Config(sharedSecret: sharedSecret))
     }
 }

@@ -92,9 +92,9 @@ class dreiAttestTests: XCTestCase {
         })
 
         wait(for: [expectation3, expectation4], timeout: 10)
-        XCTAssert(service1.keyNetworkHelper.registerCount == 1)
-        XCTAssert(service2.keyNetworkHelper.registerCount == 0)
-        XCTAssert(service3.keyNetworkHelper.registerCount == 1)
+        XCTAssertEqual((service1.keyNetworkHelper as! KeyCountingNetworkHelper).registerCount, 1)
+        XCTAssertEqual((service2.keyNetworkHelper as! KeyCountingNetworkHelper).registerCount, 0)
+        XCTAssertEqual((service3.keyNetworkHelper as! KeyCountingNetworkHelper).registerCount, 1)
     }
 
     func decodeAttestation(attestation: CBOR) -> (certificates: [Data], receipt: Data, auth:Data)? {
@@ -272,7 +272,7 @@ class dreiAttestTests: XCTestCase {
         }
 
         wait(for: [expectation], timeout: 10)
-        XCTAssertEqual(service.keyNetworkHelper.registerCount, 0)
+        XCTAssertEqual((service.keyNetworkHelper as! KeyCountingNetworkHelper).registerCount, 0)
     }
 
     func testKeyRenewal() throws {
@@ -306,7 +306,7 @@ class dreiAttestTests: XCTestCase {
             expectation1.fulfill()
         }.resume()
         wait(for: [expectation1], timeout: 5)
-        XCTAssertEqual(service.keyNetworkHelper.registerCount, 2)
+        XCTAssertEqual((service.keyNetworkHelper as! KeyCountingNetworkHelper).registerCount, 2)
 
         session.request(URL(string: "https://drei.io/test")!)
             .validate()
@@ -315,6 +315,6 @@ class dreiAttestTests: XCTestCase {
         }.resume()
 
         wait(for: [expectation2], timeout: 5)
-        XCTAssertEqual(service.keyNetworkHelper.registerCount, 2)
+        XCTAssertEqual((service.keyNetworkHelper as! KeyCountingNetworkHelper).registerCount, 2)
     }
 }
