@@ -9,7 +9,12 @@ import Foundation
 import DeviceCheck
 import Alamofire
 
-private let keyGenerationLock = NSLock()
+let keyGenerationQueue: OperationQueue = {
+    let queue = OperationQueue()
+    queue.maxConcurrentOperationCount = 1
+    queue.qualityOfService = .userInitiated
+    return queue
+}()
 
 public final class AttestService<KeyNetworkHelper: _KeyNetworkHelper>: RequestInterceptor {
     public let uid: String
@@ -20,6 +25,14 @@ public final class AttestService<KeyNetworkHelper: _KeyNetworkHelper>: RequestIn
     let sharedSecret: String?
     var serviceUid: String {
         UserDefaults.standard.serviceUid(for: uid)
+    }
+
+    deinit {
+        for operation in keyGenerationQueue.operations {
+            if (operation as? BlockOperation)?.owner === self {
+                operation.cancel()
+            }
+        }
     }
 
     init(baseAddress: URL, uid: String, validationLevel: ValidationLevel, config: Config<KeyNetworkHelper>) throws {
@@ -48,31 +61,35 @@ public final class AttestService<KeyNetworkHelper: _KeyNetworkHelper>: RequestIn
         }
     }
 
+    private func scheduleKeyGeneration(_ callback: @escaping (String) -> Void, _ error: @escaping (Error?) -> Void) {
+        // Dispatch so we don't block the main thread
+        let operation = BlockOperation { [weak self] done in
+            let doneErrorHandler = error ++ done
+            let doneCallback = callback ++ done
+
+            guard let self = self else { done(); return }
+            if let keyId = UserDefaults.standard.keyIds[self.serviceUid] {
+                doneCallback(keyId)
+                return
+            }
+
+            // once we commit to generating a new key we want to complete the operation so we capture self strongly
+            self.generateNewKey(callback: { keyId in
+                self.keyNetworkHelper.registerNewKey(keyId: keyId, uid: self.serviceUid, callback: {
+                    UserDefaults.standard.keyIds[self.serviceUid] = keyId
+                    doneCallback(keyId)
+                }, error: doneErrorHandler)
+            }, error: doneErrorHandler)
+        }
+
+        operation.owner = self
+        keyGenerationQueue.addOperation(operation)
+        keyGenerationQueue.schedule({})
+    }
+
     func getKeyId(callback: @escaping (String) -> Void, error: @escaping (Error?) -> Void) {
         guard let keyId = UserDefaults.standard.keyIds[serviceUid] else {
-            // Dispatch so we don't block the main thread
-            DispatchQueue.global(qos: .userInitiated).async { [weak self] in
-                guard let self = self else { return }
-                keyGenerationLock.lock()
-                if let keyId = UserDefaults.standard.keyIds[self.serviceUid] {
-                    keyGenerationLock.unlock()
-                    callback(keyId)
-                    return
-                }
-
-                let unlockingErrorHandler = { (err: Error?) in
-                    keyGenerationLock.unlock()
-                    error(err)
-                }
-                // once we commit to generating a new key we want to complete the operation so we capture self strongly
-                self.generateNewKey(callback: { keyId in
-                    self.keyNetworkHelper.registerNewKey(keyId: keyId, uid: self.serviceUid, callback: {
-                        UserDefaults.standard.keyIds[self.serviceUid] = keyId
-                        keyGenerationLock.unlock()
-                        callback(keyId)
-                    }, error: unlockingErrorHandler)
-                }, error: unlockingErrorHandler)
-            }
+            scheduleKeyGeneration(callback, error)
             return
         }
 

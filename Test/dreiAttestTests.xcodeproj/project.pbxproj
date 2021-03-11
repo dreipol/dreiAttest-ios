@@ -21,6 +21,8 @@
 		C7639B6E25B6D9DC009D2978 /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = C7639B6D25B6D9DC009D2978 /* Preview Assets.xcassets */; };
 		C77A2CD725B5C29D0039FED4 /* KeyNetworkHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = C77A2CD625B5C29D0039FED4 /* KeyNetworkHelper.swift */; };
 		C77A2CDA25B5C2CF0039FED4 /* Config.swift in Sources */ = {isa = PBXBuildFile; fileRef = C77A2CD925B5C2CF0039FED4 /* Config.swift */; };
+		C7C79BA325FA52080070A3B6 /* BlockOperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7C79BA225FA52080070A3B6 /* BlockOperation.swift */; };
+		C7C79BA725FA58310070A3B6 /* Closure+Composition.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7C79BA625FA58310070A3B6 /* Closure+Composition.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -53,6 +55,8 @@
 		C7639B6F25B6D9DC009D2978 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		C77A2CD625B5C29D0039FED4 /* KeyNetworkHelper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeyNetworkHelper.swift; sourceTree = "<group>"; };
 		C77A2CD925B5C2CF0039FED4 /* Config.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Config.swift; sourceTree = "<group>"; };
+		C7C79BA225FA52080070A3B6 /* BlockOperation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BlockOperation.swift; sourceTree = "<group>"; };
+		C7C79BA625FA58310070A3B6 /* Closure+Composition.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Closure+Composition.swift"; sourceTree = "<group>"; };
 		E14E9FDBA45F7538653C5816 /* Pods-dreiAttestTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-dreiAttestTests.debug.xcconfig"; path = "Target Support Files/Pods-dreiAttestTests/Pods-dreiAttestTests.debug.xcconfig"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -161,6 +165,8 @@
 				C77A2CD925B5C2CF0039FED4 /* Config.swift */,
 				C7599D3125C823710016F99E /* Networking+dreiAttest.swift */,
 				C744063725B5773900FC30B2 /* UserDefaults+dreiAttest.swift */,
+				C7C79BA225FA52080070A3B6 /* BlockOperation.swift */,
+				C7C79BA625FA58310070A3B6 /* Closure+Composition.swift */,
 			);
 			path = Util;
 			sourceTree = "<group>";
@@ -320,6 +326,8 @@
 				C7639B5925B6D388009D2978 /* MockKeyNetworkHelpers.swift in Sources */,
 				C744063225B5722B00FC30B2 /* AttestService.swift in Sources */,
 				C7599D3625C83C1B0016F99E /* ServiceRequestHelper.swift in Sources */,
+				C7C79BA725FA58310070A3B6 /* Closure+Composition.swift in Sources */,
+				C7C79BA325FA52080070A3B6 /* BlockOperation.swift in Sources */,
 				C7599D3225C823710016F99E /* Networking+dreiAttest.swift in Sources */,
 				C74405EF25B56CDB00FC30B2 /* dreiAttestTests.swift in Sources */,
 				C77A2CD725B5C29D0039FED4 /* KeyNetworkHelper.swift in Sources */,
