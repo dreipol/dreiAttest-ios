@@ -28,10 +28,9 @@ public final class AttestService<KeyNetworkHelper: _KeyNetworkHelper>: RequestIn
     }
 
     deinit {
-        for operation in keyGenerationQueue.operations {
-            if (operation as? BlockOperation)?.owner === self {
-                operation.cancel()
-            }
+        for operation in keyGenerationQueue.operations
+        where (operation as? BlockOperation)?.owner === self {
+            operation.cancel()
         }
     }
 

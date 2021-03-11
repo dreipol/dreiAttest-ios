@@ -15,7 +15,7 @@ class BlockOperation: Operation {
     typealias DoneNotifier = () -> Void
 
     let block: (@escaping DoneNotifier) -> Void
-    weak var owner: AnyObject? = nil
+    weak var owner: AnyObject?
     private var state: OperationState = .notStarted {
         willSet {
             willChangeValue(for: \.isExecuting)
