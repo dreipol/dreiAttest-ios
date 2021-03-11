@@ -306,7 +306,7 @@ class dreiAttestTests: XCTestCase {
             expectation1.fulfill()
         }.resume()
         wait(for: [expectation1], timeout: 5)
-        XCTAssertEqual((service.keyNetworkHelper as! KeyCountingNetworkHelper).registerCount, 2)
+        XCTAssertEqual((service.keyNetworkHelper as! ForwardingKeyCountingNetworkHelper).registerCount, 2)
 
         session.request(URL(string: "https://drei.io/test")!)
             .validate()
@@ -315,6 +315,6 @@ class dreiAttestTests: XCTestCase {
         }.resume()
 
         wait(for: [expectation2], timeout: 5)
-        XCTAssertEqual((service.keyNetworkHelper as! KeyCountingNetworkHelper).registerCount, 2)
+        XCTAssertEqual((service.keyNetworkHelper as! ForwardingKeyCountingNetworkHelper).registerCount, 2)
     }
 }
