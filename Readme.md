@@ -49,7 +49,7 @@ If your app doesn't use login you can also omit the `uid`. In that case dreiAtte
 You can now use the [Alamofire session](https://github.com/Alamofire/Alamofire) as you normally would.
 
 ### Development
-DeviceCheck is not supported by the iOS Simulator. During development it may be useful to [setup a shared secret](https://github.com/dreipol/dreiattest-django#usage) on the server to bypass dreiAttest. You can pass this shared secret to the iOS library using the `DREIATTEST_BYPASS_SECRET`environment variable or by passing it to the `AttestServie` in its initializer.
+DeviceCheck is not supported by the iOS Simulator. During development it may be useful to [setup a shared secret](https://github.com/dreipol/dreiattest-django#usage) on the server to bypass dreiAttest. You can pass this shared secret to the iOS library using the `DREIATTEST_BYPASS_SECRET` environment variable or by passing it to the `AttestServie` in its initializer.
 
 ## Discussion
 To use dreiAttest toghether with other interceptors create an `Interceptor` like
