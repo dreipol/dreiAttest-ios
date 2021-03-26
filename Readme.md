@@ -21,6 +21,14 @@ pod 'dreiAttest', :git => 'https://github.com/dreipol/dreiAttest-ios'
 ```
 Run `pod install`.
 
+### Using Swift Package Manager
+Add the following to your `Package.swift` file:
+```swift
+dependencies: [
+    .package(url: "https://github.com/dreipol/dreiAttest-ios", .upToNextMajor(from: "1.0.0"))
+]
+```
+
 ## Usage
 
 Import `dreiAttest` and `Alamofire`:
