@@ -9,6 +9,7 @@ import Foundation
 import Alamofire
 import DeviceCheck
 import CryptoKit
+import DogSwift
 
 public enum ValidationLevel {
     case signOnly, withNonce
@@ -53,8 +54,14 @@ struct ServiceRequestHelper {
                       snonce: String,
                       keyId: String,
                       completion: @escaping (Result<URLRequest, Error>) -> Void) {
+
         var mutableRequest = request
         let nonce = Self.nonce(requestHash, snonce: snonce)
+
+        Log.debug("Request hash:\n\(requestHash.base64EncodedString())", tag: "dreiAttest")
+        Log.debug("Snonce:\n\(snonce)", tag: "dreiAttest")
+        Log.debug("Nonce:\n\(nonce.base64EncodedString())", tag: "dreiAttest")
+
         service.generateAssertion(keyId, clientDataHash: nonce) { assertion, error in
             guard let assertion = assertion, error == nil else {
                 completion(.failure(error ?? AttestError.internal))
@@ -63,6 +70,11 @@ struct ServiceRequestHelper {
 
             mutableRequest.addHeader(.signature(value: assertion.base64EncodedString()))
             mutableRequest.addHeader(.snonce(value: snonce))
+
+            Log.info(mutableRequest, tag: "dreiAttest")
+            Log.debug("Headers:\n\(mutableRequest.allHTTPHeaderFields as Any)", tag: "dreiAttest")
+            Log.debug("Body:\n\(mutableRequest.httpBody?.base64EncodedString() as Any)", tag: "dreiAttest")
+
             completion(.success(mutableRequest))
         }
     }

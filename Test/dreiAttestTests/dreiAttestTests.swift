@@ -317,4 +317,15 @@ class dreiAttestTests: XCTestCase {
         wait(for: [expectation2], timeout: 5)
         XCTAssertEqual((service.keyNetworkHelper as! ForwardingKeyCountingNetworkHelper).registerCount, 2)
     }
+
+    func testOnline() throws {
+        let service = try AttestService(baseAddress: URL(string: "https://erz-rezhycle-prod.drei.io")!, uid: "test", validationLevel: .signOnly)
+        let session = Session(interceptor: service)
+        let expectation = XCTestExpectation()
+        session.request("https://erz-rezhycle-prod.drei.io/demo/").response { response in
+            print(response.debugDescription)
+            expectation.fulfill()
+        }
+        wait(for: [expectation], timeout: 5)
+    }
 }

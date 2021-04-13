@@ -26,15 +26,15 @@ private let headerPrefix = "Dreiattest"
 
 extension HTTPHeader {
     static func uid(value: String) -> HTTPHeader {
-        HTTPHeader(name: "\(headerPrefix)-uid", value: value)
+        HTTPHeader(name: "\(headerPrefix)-Uid", value: value)
     }
 
     static func snonce(value: String) -> HTTPHeader {
-        HTTPHeader(name: "\(headerPrefix)-nonce", value: value)
+        HTTPHeader(name: "\(headerPrefix)-Nonce", value: value)
     }
 
     static func signature(value: String) -> HTTPHeader {
-        HTTPHeader(name: "\(headerPrefix)-signature", value: value)
+        HTTPHeader(name: "\(headerPrefix)-Signature", value: value)
     }
 
     static func bypass(value: String) -> HTTPHeader {
