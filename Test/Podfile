@@ -7,4 +7,5 @@ target 'dreiAttestTests' do
     pod 'Alamofire', '~> 5.4.0'
     pod 'Mocker', '~> 2.2.0'
     pod 'SwiftCBOR', '~> 0.4.3'
+    pod 'DogSwift', '~> 1.1.1'
 end

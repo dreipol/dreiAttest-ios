@@ -1,24 +1,28 @@
 PODS:
   - Alamofire (5.4.0)
+  - DogSwift (1.1.1)
   - Mocker (2.2.0)
   - SwiftCBOR (0.4.3)
 
 DEPENDENCIES:
   - Alamofire (~> 5.4.0)
+  - DogSwift (~> 1.1.1)
   - Mocker (~> 2.2.0)
   - SwiftCBOR (~> 0.4.3)
 
 SPEC REPOS:
   trunk:
     - Alamofire
+    - DogSwift
     - Mocker
     - SwiftCBOR
 
 SPEC CHECKSUMS:
   Alamofire: 3b6a534a3df22db367e4dedeeca73d1ddfcf0e2f
+  DogSwift: a950b353481a01eed5ffd033c086a50693891bb8
   Mocker: d0ceb340eddd5c28539a691ce67d068674cef9a0
   SwiftCBOR: c7d740966575e0fd5d971466de2b6776db3f10c3
 
-PODFILE CHECKSUM: c679e3f1b2f799cccb556503f4ee520c75c09262
+PODFILE CHECKSUM: 24310976785d37904ffe407bfe8fa501fa76741d
 
 COCOAPODS: 1.10.1

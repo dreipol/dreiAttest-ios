@@ -1,0 +1,6 @@
+framework module DogSwift {
+  umbrella header "DogSwift-umbrella.h"
+
+  export *
+  module * { export * }
+}
