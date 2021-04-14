@@ -337,6 +337,7 @@ class dreiAttestTests: XCTestCase {
     }
 
     func testLocally() throws {
-        try! testDemo(url: URL(string: "http://192.168.2.75:8000")!)
+        let ipAddress = "10.0.1.56"
+        try! testDemo(url: URL(string: "http://\(ipAddress):8000")!)
     }
 }

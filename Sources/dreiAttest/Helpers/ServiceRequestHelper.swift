@@ -130,10 +130,15 @@ struct ServiceRequestHelper {
     static func requestHash(_ urlRequest: URLRequest) -> Data {
         let url = urlRequest.url?.absoluteString.data(using: .utf8) ?? Data()
         let method = (urlRequest.method?.rawValue ?? "").data(using: .utf8) ?? Data()
-        let headers = (try? JSONSerialization.data(withJSONObject: urlRequest.allHTTPHeaderFields ?? [:],
-                                                   options: [.prettyPrinted, .sortedKeys])) ?? Data()
 
-        return Data(SHA256.hash(data: url + method + headers + (urlRequest.httpBody ?? Data())))
+//        TODO: Filter for userHeaders
+        let headers = (try? JSONSerialization.data(withJSONObject: urlRequest.allHTTPHeaderFields ?? [:],
+                                                   options: [.sortedKeys])) ?? Data()
+        let requestData: Data = url + method
+//            + headers
+            + (urlRequest.httpBody ?? Data())
+        Log.debug("RequestHashData: \(String(data: requestData, encoding: .utf8) ?? "")", tag: "dreiAttest")
+        return Data(SHA256.hash(data: requestData))
     }
 
     static func nonce(_ requestHash: Data, snonce: String) -> Data {
