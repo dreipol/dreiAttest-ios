@@ -90,6 +90,7 @@ struct ServiceRequestHelper {
         }
 
         var mutableRequest = urlRequest
+        mutableRequest.addHeader(.userHeaders(value: Array((mutableRequest.allHTTPHeaderFields ?? [:]).keys)))
         mutableRequest.addHeader(.uid(value: uid))
 
         var requestHash: Data?

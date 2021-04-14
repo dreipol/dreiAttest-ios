@@ -37,6 +37,11 @@ extension HTTPHeader {
         HTTPHeader(name: "\(headerPrefix)-Signature", value: value)
     }
 
+    static func userHeaders(value: [String]) -> HTTPHeader {
+        let headers = value.joined(separator: ",")
+        return HTTPHeader(name: "\(headerPrefix)-user-headers", value: headers)
+    }
+
     static func bypass(value: String) -> HTTPHeader {
         HTTPHeader(name: "\(headerPrefix)-shared-secret", value: value)
     }
