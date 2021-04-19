@@ -38,8 +38,9 @@ extension HTTPHeader {
     }
 
     static func userHeaders(value: [String]) -> HTTPHeader {
-        let headers = value.joined(separator: ",")
-        return HTTPHeader(name: "\(headerPrefix)-user-headers", value: headers)
+        let headerName = "\(headerPrefix)-user-headers"
+        let headers = (value + [headerName]).joined(separator: ",")
+        return HTTPHeader(name: headerName, value: headers)
     }
 
     static func bypass(value: String) -> HTTPHeader {

@@ -90,8 +90,8 @@ struct ServiceRequestHelper {
         }
 
         var mutableRequest = urlRequest
-        mutableRequest.addHeader(.userHeaders(value: Array((mutableRequest.allHTTPHeaderFields ?? [:]).keys)))
         mutableRequest.addHeader(.uid(value: uid))
+        mutableRequest.addHeader(.userHeaders(value: Array((mutableRequest.allHTTPHeaderFields ?? [:]).keys)))
 
         var requestHash: Data?
         var snonce = defaultRequestNonce
