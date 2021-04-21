@@ -131,11 +131,10 @@ struct ServiceRequestHelper {
         let url = urlRequest.url?.absoluteString.data(using: .utf8) ?? Data()
         let method = (urlRequest.method?.rawValue ?? "").data(using: .utf8) ?? Data()
 
-//        TODO: Filter for userHeaders
         let headers = (try? JSONSerialization.data(withJSONObject: urlRequest.allHTTPHeaderFields ?? [:],
                                                    options: [.sortedKeys])) ?? Data()
         let requestData: Data = url + method
-//            + headers
+            + headers
             + (urlRequest.httpBody ?? Data())
         Log.debug("RequestHashData: \(String(data: requestData, encoding: .utf8) ?? "")", tag: "dreiAttest")
         return Data(SHA256.hash(data: requestData))
