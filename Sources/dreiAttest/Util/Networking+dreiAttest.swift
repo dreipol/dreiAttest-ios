@@ -38,17 +38,17 @@ extension HTTPHeader {
     }
 
     static func userHeaders(value: [String]) -> HTTPHeader {
-        let headerName = "\(headerPrefix)-user-headers"
+        let headerName = "\(headerPrefix)-User-Headers"
         let headers = (value + [headerName]).joined(separator: ",")
         return HTTPHeader(name: headerName, value: headers)
     }
 
     static func bypass(value: String) -> HTTPHeader {
-        HTTPHeader(name: "\(headerPrefix)-shared-secret", value: value)
+        HTTPHeader(name: "\(headerPrefix)-Shared-Secret", value: value)
     }
 
     static var errorHeaderName: String {
-        "\(headerPrefix)-error"
+        "\(headerPrefix)-Error"
     }
 }
 
