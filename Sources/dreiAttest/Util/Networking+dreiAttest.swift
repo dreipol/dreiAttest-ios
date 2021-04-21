@@ -73,12 +73,16 @@ extension URLRequest {
 }
 
 extension URL {
+    var schemelessString: String {
+        absoluteString.components(separatedBy: "://")[1]
+    }
+
     func isSubpath(of other: URL) -> Bool {
-        var absolute = other.absoluteString
+        var absolute = other.schemelessString
         if !absolute.hasSuffix("/") {
             absolute += "/"
         }
 
-        return absoluteString.hasPrefix(absolute)
+        return schemelessString.hasPrefix(absolute)
     }
 }
