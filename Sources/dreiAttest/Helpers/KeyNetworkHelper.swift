@@ -159,18 +159,22 @@ struct DefaultKeyNetworkHelper: KeyNetworkHelper {
         Log.info(request, tag: "dreiAttest")
         Log.debug("Headers:\n\(request.convertible.urlRequest?.allHTTPHeaderFields as Any)", tag: "dreiAttest")
         Log.debug("Body:\n\(request.convertible.urlRequest?.httpBody?.base64EncodedString() as Any)", tag: "dreiAttest")
-        request.responseString { snonce in
-                defer {
-                    session.close()
-                }
+        request.responseJSON { response in
+            defer {
+                session.close()
+            }
 
-                switch snonce.result {
-                case .success(let snonce):
-                    success(snonce.components(separatedBy: "\"")[3])
-                case .failure(let err):
-                    error(err)
-                }
-            }.resume()
+            switch response.result {
+            case .success(let nonce) where nonce is String:
+                success(nonce as! String)
+            case .success(_):
+//                If snonce is not a valid string, the response is not acceptable
+                error(AttestError.internal)
+            case .failure(let err):
+                error(err)
+
+            }
+        }.resume()
     }
 
     static func nonce(uid: String, keyId: String, snonce: String) -> Data? {
