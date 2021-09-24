@@ -12,7 +12,7 @@ import DeviceCheck
 import DogSwift
 
 protocol KeyNetworkHelper {
-    init(baseUrl: URL, sessionConfiguration: URLSessionConfiguration)
+    init(baseUrl: URL, sessionConfiguration: URLSessionConfiguration, commonHeaders: [HTTPHeader])
 
     func registerNewKey(keyId: String, uid: String, callback: @escaping () -> Void, error: @escaping (Error?) -> Void)
     func deregisterKey(_ keyId: String, for uid: String, success: @escaping () -> Void, error: @escaping (Error?) -> Void)
@@ -22,10 +22,12 @@ struct DefaultKeyNetworkHelper: KeyNetworkHelper {
     let baseUrl: URL
     let service = DCAppAttestService.shared
     let sessionConfiguration: URLSessionConfiguration
+    let commonHeaders: [HTTPHeader]
 
-    init(baseUrl: URL, sessionConfiguration: URLSessionConfiguration) {
+    init(baseUrl: URL, sessionConfiguration: URLSessionConfiguration, commonHeaders: [HTTPHeader]) {
         self.baseUrl = baseUrl
         self.sessionConfiguration = sessionConfiguration
+        self.commonHeaders = commonHeaders
     }
 
     private func doRegisterKey(payload: [String: Any],
@@ -33,7 +35,7 @@ struct DefaultKeyNetworkHelper: KeyNetworkHelper {
                                snonce: String,
                                callback: @escaping () -> Void,
                                error: @escaping (Error?) -> Void) throws {
-        let headers = HTTPHeaders([.uid(value: uid), .snonce(value: snonce)])
+        let headers = HTTPHeaders(commonHeaders + [.uid(value: uid), .snonce(value: snonce)])
         let session = Session(configuration: sessionConfiguration)
         let request = try session.request(baseUrl: baseUrl,
                             endpoint: Endpoints.registerKey,
@@ -141,7 +143,7 @@ struct DefaultKeyNetworkHelper: KeyNetworkHelper {
         UserDefaults.standard.keyIds[uid] = nil
 
         do {
-            let deleteHeaders = HTTPHeaders([.uid(value: uid)])
+            let deleteHeaders = HTTPHeaders(commonHeaders + [.uid(value: uid)])
             var request = try URLRequest(url: baseUrl.appendingPathComponent(Endpoints.deleteKey.name),
                                          method: Endpoints.deleteKey.method,
                                          headers: deleteHeaders)
@@ -154,7 +156,7 @@ struct DefaultKeyNetworkHelper: KeyNetworkHelper {
 
     func executeWithSNonce(uid: String, success: @escaping (String) -> Void, error: @escaping (Error?) -> Void) throws {
         let session = Session(configuration: sessionConfiguration)
-        let getNonceHeaders = HTTPHeaders([.uid(value: uid), .accept("text/plain")])
+        let getNonceHeaders = HTTPHeaders(commonHeaders + [.uid(value: uid), .accept("application/json")])
         let request = try session.request(baseUrl: baseUrl, endpoint: Endpoints.keyRegistrationNonce, headers: getNonceHeaders)
         Log.info(request, tag: "dreiAttest")
         Log.debug("Headers:\n\(request.convertible.urlRequest?.allHTTPHeaderFields as Any)", tag: "dreiAttest")

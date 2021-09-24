@@ -13,7 +13,7 @@ import CryptoKit
 class KeyCountingNetworkHelper: KeyNetworkHelper {
     var registerCount = 0
 
-    required init(baseUrl: URL, sessionConfiguration: URLSessionConfiguration) {}
+    required init(baseUrl: URL, sessionConfiguration: URLSessionConfiguration, commonHeaders: [HTTPHeader]) {}
 
     func registerNewKey(keyId: String, uid: String, callback: @escaping () -> Void, error: @escaping (Error?) -> Void) {
         registerCount += 1
@@ -30,8 +30,8 @@ class ForwardingKeyCountingNetworkHelper: KeyNetworkHelper {
     var registerCount = 0
     let target: DefaultKeyNetworkHelper
 
-    required init(baseUrl: URL, sessionConfiguration: URLSessionConfiguration) {
-        target = DefaultKeyNetworkHelper(baseUrl: baseUrl, sessionConfiguration: sessionConfiguration)
+    required init(baseUrl: URL, sessionConfiguration: URLSessionConfiguration, commonHeaders: [HTTPHeader]) {
+        target = DefaultKeyNetworkHelper(baseUrl: baseUrl, sessionConfiguration: sessionConfiguration, commonHeaders: commonHeaders)
     }
 
     func registerNewKey(keyId: String, uid: String, callback: @escaping () -> Void, error: @escaping (Error?) -> Void) {
@@ -45,7 +45,7 @@ class ForwardingKeyCountingNetworkHelper: KeyNetworkHelper {
 }
 
 class AlwaysAcceptingKeyNetworkHelper: KeyNetworkHelper {
-    required init(baseUrl: URL, sessionConfiguration: URLSessionConfiguration) {}
+    required init(baseUrl: URL, sessionConfiguration: URLSessionConfiguration, commonHeaders: [HTTPHeader]) {}
 
     func registerNewKey(keyId: String, uid: String, callback: @escaping () -> Void, error: @escaping (Error?) -> Void) {
         DCAppAttestService.shared.attestKey(keyId, clientDataHash: Data(SHA256.hash(data: Data()))) { attestation, err in

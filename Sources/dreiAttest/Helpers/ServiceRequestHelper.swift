@@ -21,6 +21,7 @@ struct ServiceRequestHelper {
     let baseUrl: URL
     let service = DCAppAttestService.shared
     let validationLevel: ValidationLevel
+    let commonHeaders: [HTTPHeader]
 
     func shouldHanlde(_ urlRequest: URLRequest) -> Bool {
         urlRequest.url?.isSubpath(of: baseUrl) == true
@@ -43,6 +44,7 @@ struct ServiceRequestHelper {
         }
 
         var mutableRequest = urlRequest
+        mutableRequest.addHeaders(commonHeaders)
         mutableRequest.addHeader(.uid(value: uid))
         mutableRequest.addHeader(.bypass(value: sharedSecret))
 
@@ -90,6 +92,7 @@ struct ServiceRequestHelper {
         }
 
         var mutableRequest = urlRequest
+        mutableRequest.addHeaders(commonHeaders)
         mutableRequest.addHeader(.uid(value: uid))
         mutableRequest.addHeader(.userHeaders(value: Array((mutableRequest.allHTTPHeaderFields ?? [:]).keys)))
 

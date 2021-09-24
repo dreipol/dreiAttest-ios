@@ -43,8 +43,10 @@ public final class AttestService: RequestInterceptor {
             throw AttestError.notSupported
         }
 
-        keyNetworkHelper = config.networkHelperType.init(baseUrl: baseAddress, sessionConfiguration: config.sessionConfiguration)
-        serviceRequestHelper = ServiceRequestHelper(baseUrl: baseAddress, validationLevel: validationLevel)
+        let commonHeaders = [HTTPHeader.libraryVersion, HTTPHeader.appVersion, HTTPHeader.appBuild, HTTPHeader.appIdentifier, HTTPHeader.os]
+
+        keyNetworkHelper = config.networkHelperType.init(baseUrl: baseAddress, sessionConfiguration: config.sessionConfiguration, commonHeaders: commonHeaders)
+        serviceRequestHelper = ServiceRequestHelper(baseUrl: baseAddress, validationLevel: validationLevel, commonHeaders: commonHeaders)
         self.uid = uid
         sharedSecret = config.sharedSecret
     }
@@ -112,17 +114,19 @@ public final class AttestService: RequestInterceptor {
     }
 
     public func adapt(_ urlRequest: URLRequest, for session: Session, completion: @escaping (Result<URLRequest, Error>) -> Void) {
+        // decide whether we have to handle the request early on (before checking headers) so we can have multiple AttestationServices
+        // running at the same time for different baseUrls
+        guard serviceRequestHelper.shouldHanlde(urlRequest) else {
+            completion(.success(urlRequest))
+            return
+        }
+
         if let sharedSecret = sharedSecret {
             serviceRequestHelper.adapt(urlRequest, for: session, uid: serviceUid, bypass: sharedSecret, completion: completion)
-        } else if serviceRequestHelper.shouldHanlde(urlRequest) {
-            // decide whether we have to handle the request early on (before checking headers) so we can have multiple AttestationServices
-            // running at the same time for different baseUrls
-
+        } else {
             getKeyId(callback: { keyId in
                 self.serviceRequestHelper.adapt(urlRequest, for: session, uid: self.serviceUid, keyId: keyId, completion: completion)
             }, error: { completion(.failure($0 ?? AttestError.internal)) })
-        } else {
-            completion(.success(urlRequest))
         }
     }
 
