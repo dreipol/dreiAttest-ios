@@ -318,11 +318,11 @@ class dreiAttestTests: XCTestCase {
         XCTAssertEqual((service.keyNetworkHelper as! ForwardingKeyCountingNetworkHelper).registerCount, 2)
     }
 
-    func testDemo(url: URL!) throws {
+    func testDemo(url: URL!, testRedirect: Bool) throws {
         let service = try AttestService(baseAddress: url, uid: "test", validationLevel: .signOnly)
         let session = Session(interceptor: service, redirectHandler: service)
         let expectation = XCTestExpectation()
-        let demoURL = URL(string: "demo", relativeTo: url)
+        let demoURL = URL(string: "demo\(testRedirect ? "" : "/")", relativeTo: url)
         session.request(demoURL!).response {response in
             print(response.debugDescription)
             XCTAssertNotNil(response.response)
@@ -333,11 +333,13 @@ class dreiAttestTests: XCTestCase {
     }
 
     func testOnline() throws {
-        try! testDemo(url: URL(string: "https://erz-rezhycle-prod.drei.io")!)
+        try! testDemo(url: URL(string: "https://erz-rezhycle-prod.drei.io")!, testRedirect: true)
+        try! testDemo(url: URL(string: "https://erz-rezhycle-prod.drei.io")!, testRedirect: false)
     }
 
     func testLocally() throws {
         let ipAddress = "10.0.1.56"
-        try! testDemo(url: URL(string: "http://\(ipAddress):8000")!)
+        try! testDemo(url: URL(string: "http://\(ipAddress):8000")!, testRedirect: true)
+        try! testDemo(url: URL(string: "http://\(ipAddress):8000")!, testRedirect: false)
     }
 }
