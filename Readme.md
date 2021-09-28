@@ -41,7 +41,7 @@ Once the user has logged in to your app setup the attest service:
 ```swift
 do {
     let attestService = try AttestService(baseAddress: URL(string: "https://example.com/attested")!, uid: "hello@example.com", validationLevel: .signOnly)
-    let session = Session(interceptor: attestService)
+    let session = Session(interceptor: attestService, redirectHandler: attestService)
     // ...
 } catch {
     switch error {

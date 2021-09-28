@@ -16,7 +16,7 @@ let keyGenerationQueue: OperationQueue = {
     return queue
 }()
 
-public final class AttestService: RequestInterceptor {
+public final class AttestService: RequestInterceptor, RedirectHandler {
     public let uid: String
 
     let keyNetworkHelper: KeyNetworkHelper
@@ -113,7 +113,7 @@ public final class AttestService: RequestInterceptor {
         keyNetworkHelper.deregisterKey(keyId, for: serviceUid, success: {}, error: { _ in })
     }
 
-    public func adapt(_ urlRequest: URLRequest, for session: Session, completion: @escaping (Result<URLRequest, Error>) -> Void) {
+    private func doAdapt(_ urlRequest: URLRequest, completion: @escaping (Result<URLRequest, Error>) -> Void) {
         // decide whether we have to handle the request early on (before checking headers) so we can have multiple AttestationServices
         // running at the same time for different baseUrls
         guard serviceRequestHelper.shouldHanlde(urlRequest) else {
@@ -122,12 +122,16 @@ public final class AttestService: RequestInterceptor {
         }
 
         if let sharedSecret = sharedSecret {
-            serviceRequestHelper.adapt(urlRequest, for: session, uid: serviceUid, bypass: sharedSecret, completion: completion)
+            serviceRequestHelper.adapt(urlRequest, uid: serviceUid, bypass: sharedSecret, completion: completion)
         } else {
             getKeyId(callback: { keyId in
-                self.serviceRequestHelper.adapt(urlRequest, for: session, uid: self.serviceUid, keyId: keyId, completion: completion)
+                self.serviceRequestHelper.adapt(urlRequest, uid: self.serviceUid, keyId: keyId, completion: completion)
             }, error: { completion(.failure($0 ?? AttestError.internal)) })
         }
+    }
+
+    public func adapt(_ urlRequest: URLRequest, for session: Session, completion: @escaping (Result<URLRequest, Error>) -> Void) {
+        doAdapt(urlRequest, completion: completion)
     }
 
     public func retry(_ request: Request, for session: Session, dueTo error: Error, completion: @escaping (RetryResult) -> Void) {
@@ -145,6 +149,20 @@ public final class AttestService: RequestInterceptor {
             completion(.retry)
         } else {
             completion(.doNotRetryWithError(AttestError.invalidKey))
+        }
+    }
+
+    public func task(_ task: URLSessionTask, willBeRedirectedTo request: URLRequest, for response: HTTPURLResponse, completion: @escaping (URLRequest?) -> Void) {
+        var mutableRequest = request
+        for header in mutableRequest.headers.filter(\.isDreiattestHeader).map(\.name) {
+            mutableRequest.setValue(nil, forHTTPHeaderField: header)
+        }
+        doAdapt(mutableRequest) { result in
+            if case .success(let adapted) = result {
+                completion(adapted)
+            } else {
+                completion(nil)
+            }
         }
     }
 }

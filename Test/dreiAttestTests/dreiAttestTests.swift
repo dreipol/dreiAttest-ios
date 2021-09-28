@@ -320,13 +320,13 @@ class dreiAttestTests: XCTestCase {
 
     func testDemo(url: URL!) throws {
         let service = try AttestService(baseAddress: url, uid: "test", validationLevel: .signOnly)
-        let session = Session(interceptor: service)
+        let session = Session(interceptor: service, redirectHandler: service)
         let expectation = XCTestExpectation()
-        let demoURL = URL(string: "demo/", relativeTo: url)
-        session.request(demoURL!).response { response in
+        let demoURL = URL(string: "demo", relativeTo: url)
+        session.request(demoURL!).response {response in
             print(response.debugDescription)
             XCTAssertNotNil(response.response)
-            XCTAssertTrue((response.response?.statusCode ?? 600) < 400)
+            XCTAssertEqual((response.response?.statusCode ?? 600), 200)
             expectation.fulfill()
         }
         wait(for: [expectation], timeout: 30)

@@ -25,6 +25,10 @@ struct Endpoints {
 private let headerPrefix = "Dreiattest"
 
 extension HTTPHeader {
+    var isDreiattestHeader: Bool {
+        name.starts(with: "\(headerPrefix)-")
+    }
+
     static func uid(value: String) -> HTTPHeader {
         HTTPHeader(name: "\(headerPrefix)-Uid", value: value)
     }
@@ -114,5 +118,11 @@ extension URL {
         }
 
         return schemelessString.hasPrefix(absolute)
+    }
+}
+
+extension URLRequest {
+    var signableHeaders: [String: String] {
+        allHTTPHeaderFields?.filter { !$0.key.starts(with: "Accept") && $0.key != "User-Agent" } ?? [:]
     }
 }
