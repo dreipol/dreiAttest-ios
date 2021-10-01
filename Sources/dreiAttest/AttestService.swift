@@ -43,6 +43,12 @@ public final class AttestService: RequestInterceptor, RedirectHandler {
             throw AttestError.notSupported
         }
 
+        let range = NSRange(location: 0, length: uid.utf16.count)
+        guard let uidRegex = try? NSRegularExpression(pattern: "^[a-zA-z0-9\\._\\-@]{0,255}$", options: .anchorsMatchLines),
+              uidRegex.firstMatch(in: uid, options: [], range: range) != nil else {
+            throw AttestError.invalidUid
+        }
+
         let commonHeaders = [HTTPHeader.libraryVersion, HTTPHeader.appVersion, HTTPHeader.appBuild, HTTPHeader.appIdentifier, HTTPHeader.os]
 
         keyNetworkHelper = config.networkHelperType.init(baseUrl: baseAddress, sessionConfiguration: config.sessionConfiguration, commonHeaders: commonHeaders)

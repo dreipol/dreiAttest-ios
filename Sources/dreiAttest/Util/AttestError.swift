@@ -10,6 +10,7 @@ import DogSwift
 
 public enum AttestError: Error {
     case notSupported
+    case invalidUid
     case `internal`
     case policyViolation
     case nonceMismatch
