@@ -10,7 +10,7 @@ Typically only certain endpoints over which sensitive data can be accessed are p
 
 You should only create a an `AttestService` after the user has logged in and pass in your service's user id. dreiAttest will generate a new key every time a user logs in with a different account. Apple counts these keys for you and allows you to identify suspicious login behavior.
 
-For more information on how dreiAttest works read the [whitepaper](https://dreiattest.readthedocs.io/en/latest/index.html) or our [blog post]().
+For more information on how dreiAttest works read the [whitepaper](https://dreiattest.readthedocs.io/en/latest/index.html) or our [blog post](https://blog.dreipol.ch/introducing-dreiattest-2a86294abe83).
 
 ## Installation
 ### Using CocoaPods
