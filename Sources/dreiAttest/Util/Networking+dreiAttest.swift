@@ -25,6 +25,10 @@ struct Endpoints {
 private let headerPrefix = "Dreiattest"
 
 extension HTTPHeader {
+    var isDreiattestHeader: Bool {
+        name.starts(with: "\(headerPrefix)-")
+    }
+
     static func uid(value: String) -> HTTPHeader {
         HTTPHeader(name: "\(headerPrefix)-Uid", value: value)
     }
@@ -50,6 +54,30 @@ extension HTTPHeader {
     static var errorHeaderName: String {
         "\(headerPrefix)-Error"
     }
+
+    static var libraryVersion: HTTPHeader {
+        HTTPHeader(name: "\(headerPrefix)-Library-Version", value: dreiAttestVersion)
+    }
+
+    static var appVersion: HTTPHeader {
+        let appVersion = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String
+        return HTTPHeader(name: "\(headerPrefix)-App-Version", value: appVersion ?? "unknown" )
+    }
+
+    static var appBuild: HTTPHeader {
+        let appVersion = Bundle.main.infoDictionary?[kCFBundleVersionKey as String] as? String
+        return HTTPHeader(name: "\(headerPrefix)-App-Build", value: appVersion ?? "unknown" )
+    }
+
+    static var appIdentifier: HTTPHeader {
+        let bundleIdentifier = Bundle.main.infoDictionary?[kCFBundleIdentifierKey as String] as? String
+        return HTTPHeader(name: "\(headerPrefix)-App-Identifier", value: bundleIdentifier ?? "unknown" )
+    }
+
+    static var os: HTTPHeader {
+        let osVersion = "\(UIDevice.current.systemName) \(UIDevice.current.systemVersion)"
+        return HTTPHeader(name: "\(headerPrefix)-OS", value: osVersion)
+    }
 }
 
 extension Session {
@@ -70,6 +98,12 @@ extension URLRequest {
     mutating func addHeader(_ header: HTTPHeader) {
         addValue(header.value, forHTTPHeaderField: header.name)
     }
+
+    mutating func addHeaders(_ headers: [HTTPHeader]) {
+        for header in headers {
+            addHeader(header)
+        }
+    }
 }
 
 extension URL {
@@ -84,5 +118,11 @@ extension URL {
         }
 
         return schemelessString.hasPrefix(absolute)
+    }
+}
+
+extension URLRequest {
+    var signableHeaders: [String: String] {
+        allHTTPHeaderFields?.filter { !$0.key.starts(with: "Accept") && $0.key != "User-Agent" } ?? [:]
     }
 }

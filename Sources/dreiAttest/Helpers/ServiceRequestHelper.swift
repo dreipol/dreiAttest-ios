@@ -21,13 +21,13 @@ struct ServiceRequestHelper {
     let baseUrl: URL
     let service = DCAppAttestService.shared
     let validationLevel: ValidationLevel
+    let commonHeaders: [HTTPHeader]
 
     func shouldHanlde(_ urlRequest: URLRequest) -> Bool {
         urlRequest.url?.isSubpath(of: baseUrl) == true
     }
 
     func adapt(_ urlRequest: URLRequest,
-               for session: Session,
                uid: String,
                bypass sharedSecret: String,
                completion: (Result<URLRequest, Error>) -> Void) {
@@ -37,12 +37,13 @@ struct ServiceRequestHelper {
             completion(.success(urlRequest))
             return
         }
-        guard !urlRequest.headers.contains(where: { $0.name.starts(with: "Dreiattest-") }) else {
+        guard !urlRequest.headers.contains(where: \.isDreiattestHeader) else {
             completion(.failure(AttestError.illegalHeaders))
             return
         }
 
         var mutableRequest = urlRequest
+        mutableRequest.addHeaders(commonHeaders)
         mutableRequest.addHeader(.uid(value: uid))
         mutableRequest.addHeader(.bypass(value: sharedSecret))
 
@@ -80,18 +81,18 @@ struct ServiceRequestHelper {
     }
 
     func adapt(_ urlRequest: URLRequest,
-               for session: Session,
                uid: String,
                keyId: String,
                completion: @escaping (Result<URLRequest, Error>) -> Void) {
-        guard !urlRequest.headers.contains(where: { $0.name.starts(with: "Dreiattest-") }) else {
+        guard !urlRequest.headers.contains(where: \.isDreiattestHeader) else {
             completion(.failure(AttestError.illegalHeaders))
             return
         }
 
         var mutableRequest = urlRequest
+        mutableRequest.addHeaders(commonHeaders)
         mutableRequest.addHeader(.uid(value: uid))
-        mutableRequest.addHeader(.userHeaders(value: Array((mutableRequest.allHTTPHeaderFields ?? [:]).keys)))
+        mutableRequest.addHeader(.userHeaders(value: mutableRequest.signableHeaders.keys.sorted()))
 
         var requestHash: Data?
         var snonce = defaultRequestNonce
@@ -131,7 +132,7 @@ struct ServiceRequestHelper {
         let url = urlRequest.url?.schemelessString.data(using: .utf8) ?? Data()
         let method = (urlRequest.method?.rawValue ?? "").data(using: .utf8) ?? Data()
 
-        let headers = (try? JSONSerialization.data(withJSONObject: urlRequest.allHTTPHeaderFields ?? [:],
+        let headers = (try? JSONSerialization.data(withJSONObject: urlRequest.signableHeaders,
                                                    options: [.sortedKeys])) ?? Data()
         let requestData: Data = url + method
             + headers

@@ -36,7 +36,7 @@ extension UserDefaults {
             return serviceUid
         }
 
-        let authenticationSessionId = UUID().uuidString
+        let authenticationSessionId = UUID().uuidString.lowercased()
         let serviceUid = "\(uid);\(authenticationSessionId)"
         setValue(serviceUid, forKey: Key.uid(uid).key)
         return serviceUid
