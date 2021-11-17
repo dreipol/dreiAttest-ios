@@ -9,6 +9,7 @@ import Foundation
 import Alamofire
 import CryptoKit
 import DeviceCheck
+import DogSwift
 
 protocol KeyNetworkHelper {
     init(baseUrl: URL, sessionConfiguration: URLSessionConfiguration)
@@ -34,10 +35,15 @@ struct DefaultKeyNetworkHelper: KeyNetworkHelper {
                                error: @escaping (Error?) -> Void) throws {
         let headers = HTTPHeaders([.uid(value: uid), .snonce(value: snonce)])
         let session = Session(configuration: sessionConfiguration)
-        try session.request(baseUrl: baseUrl,
+        let request = try session.request(baseUrl: baseUrl,
                             endpoint: Endpoints.registerKey,
                             headers: headers,
-                            payload: payload).response { response in
+                            payload: payload)
+        Log.info(request, tag: "dreiAttest")
+        Log.debug("Headers:\n\(request.convertible.urlRequest?.allHTTPHeaderFields as Any)", tag: "dreiAttest")
+        Log.debug("Body:\n\(request.convertible.urlRequest?.httpBody?.base64EncodedString() as Any)", tag: "dreiAttest")
+        Log.debug("Body JSON:\n\(payload)", tag: "dreiAttest")
+        request.response { response in
             defer {
                 session.close()
             }
@@ -149,19 +155,26 @@ struct DefaultKeyNetworkHelper: KeyNetworkHelper {
     func executeWithSNonce(uid: String, success: @escaping (String) -> Void, error: @escaping (Error?) -> Void) throws {
         let session = Session(configuration: sessionConfiguration)
         let getNonceHeaders = HTTPHeaders([.uid(value: uid), .accept("text/plain")])
-        try session.request(baseUrl: baseUrl, endpoint: Endpoints.keyRegistrationNonce, headers: getNonceHeaders)
-            .responseString { snonce in
-                defer {
-                    session.close()
-                }
+        let request = try session.request(baseUrl: baseUrl, endpoint: Endpoints.keyRegistrationNonce, headers: getNonceHeaders)
+        Log.info(request, tag: "dreiAttest")
+        Log.debug("Headers:\n\(request.convertible.urlRequest?.allHTTPHeaderFields as Any)", tag: "dreiAttest")
+        Log.debug("Body:\n\(request.convertible.urlRequest?.httpBody?.base64EncodedString() as Any)", tag: "dreiAttest")
+        request.responseJSON { response in
+            defer {
+                session.close()
+            }
 
-                switch snonce.result {
-                case .success(let snonce):
-                    success(snonce)
-                case .failure(let err):
-                    error(err)
-                }
-            }.resume()
+            switch response.result {
+            case .success(let nonce) where nonce is String:
+                success(nonce as! String)
+            case .success(_):
+//                If snonce is not a valid string, the response is not acceptable
+                error(AttestError.internal)
+            case .failure(let err):
+                error(err)
+
+            }
+        }.resume()
     }
 
     static func nonce(uid: String, keyId: String, snonce: String) -> Data? {

@@ -9,6 +9,7 @@ import Foundation
 import Alamofire
 import DeviceCheck
 import CryptoKit
+import DogSwift
 
 public enum ValidationLevel {
     case signOnly, withNonce
@@ -53,8 +54,14 @@ struct ServiceRequestHelper {
                       snonce: String,
                       keyId: String,
                       completion: @escaping (Result<URLRequest, Error>) -> Void) {
+
         var mutableRequest = request
         let nonce = Self.nonce(requestHash, snonce: snonce)
+
+        Log.debug("Request hash:\n\(requestHash.base64EncodedString())", tag: "dreiAttest")
+        Log.debug("Snonce:\n\(snonce)", tag: "dreiAttest")
+        Log.debug("Nonce:\n\(nonce.base64EncodedString())", tag: "dreiAttest")
+
         service.generateAssertion(keyId, clientDataHash: nonce) { assertion, error in
             guard let assertion = assertion, error == nil else {
                 completion(.failure(error ?? AttestError.internal))
@@ -63,6 +70,11 @@ struct ServiceRequestHelper {
 
             mutableRequest.addHeader(.signature(value: assertion.base64EncodedString()))
             mutableRequest.addHeader(.snonce(value: snonce))
+
+            Log.info(mutableRequest, tag: "dreiAttest")
+            Log.debug("Headers:\n\(mutableRequest.allHTTPHeaderFields as Any)", tag: "dreiAttest")
+            Log.debug("Body:\n\(mutableRequest.httpBody?.base64EncodedString() as Any)", tag: "dreiAttest")
+
             completion(.success(mutableRequest))
         }
     }
@@ -79,6 +91,7 @@ struct ServiceRequestHelper {
 
         var mutableRequest = urlRequest
         mutableRequest.addHeader(.uid(value: uid))
+        mutableRequest.addHeader(.userHeaders(value: Array((mutableRequest.allHTTPHeaderFields ?? [:]).keys)))
 
         var requestHash: Data?
         var snonce = defaultRequestNonce
@@ -115,12 +128,16 @@ struct ServiceRequestHelper {
     }
 
     static func requestHash(_ urlRequest: URLRequest) -> Data {
-        let url = urlRequest.url?.absoluteString.data(using: .utf8) ?? Data()
+        let url = urlRequest.url?.schemelessString.data(using: .utf8) ?? Data()
         let method = (urlRequest.method?.rawValue ?? "").data(using: .utf8) ?? Data()
-        let headers = (try? JSONSerialization.data(withJSONObject: urlRequest.allHTTPHeaderFields ?? [:],
-                                                   options: [.prettyPrinted, .sortedKeys])) ?? Data()
 
-        return Data(SHA256.hash(data: url + method + headers + (urlRequest.httpBody ?? Data())))
+        let headers = (try? JSONSerialization.data(withJSONObject: urlRequest.allHTTPHeaderFields ?? [:],
+                                                   options: [.sortedKeys])) ?? Data()
+        let requestData: Data = url + method
+            + headers
+            + (urlRequest.httpBody ?? Data())
+        Log.debug("RequestHashData: \(String(data: requestData, encoding: .utf8) ?? "")", tag: "dreiAttest")
+        return Data(SHA256.hash(data: requestData))
     }
 
     static func nonce(_ requestHash: Data, snonce: String) -> Data {

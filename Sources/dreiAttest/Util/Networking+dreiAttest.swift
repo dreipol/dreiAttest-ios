@@ -26,23 +26,29 @@ private let headerPrefix = "Dreiattest"
 
 extension HTTPHeader {
     static func uid(value: String) -> HTTPHeader {
-        HTTPHeader(name: "\(headerPrefix)-uid", value: value)
+        HTTPHeader(name: "\(headerPrefix)-Uid", value: value)
     }
 
     static func snonce(value: String) -> HTTPHeader {
-        HTTPHeader(name: "\(headerPrefix)-nonce", value: value)
+        HTTPHeader(name: "\(headerPrefix)-Nonce", value: value)
     }
 
     static func signature(value: String) -> HTTPHeader {
-        HTTPHeader(name: "\(headerPrefix)-signature", value: value)
+        HTTPHeader(name: "\(headerPrefix)-Signature", value: value)
+    }
+
+    static func userHeaders(value: [String]) -> HTTPHeader {
+        let headerName = "\(headerPrefix)-User-Headers"
+        let headers = (value + [headerName]).joined(separator: ",")
+        return HTTPHeader(name: headerName, value: headers)
     }
 
     static func bypass(value: String) -> HTTPHeader {
-        HTTPHeader(name: "\(headerPrefix)-shared-secret", value: value)
+        HTTPHeader(name: "\(headerPrefix)-Shared-Secret", value: value)
     }
 
     static var errorHeaderName: String {
-        "\(headerPrefix)-error"
+        "\(headerPrefix)-Error"
     }
 }
 
@@ -67,12 +73,16 @@ extension URLRequest {
 }
 
 extension URL {
+    var schemelessString: String {
+        absoluteString.components(separatedBy: "://")[1]
+    }
+
     func isSubpath(of other: URL) -> Bool {
-        var absolute = other.absoluteString
+        var absolute = other.schemelessString
         if !absolute.hasSuffix("/") {
             absolute += "/"
         }
 
-        return absoluteString.hasPrefix(absolute)
+        return schemelessString.hasPrefix(absolute)
     }
 }

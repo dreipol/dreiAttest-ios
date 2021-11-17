@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import DogSwift
 
 public enum AttestError: Error {
     case notSupported
@@ -16,6 +17,7 @@ public enum AttestError: Error {
     case illegalHeaders
 
     static func from(_ key: String) -> AttestError {
+        Log.info("Server error: \(key)", tag: "dreiAttest")
         switch key {
         case "dreiAttest_policy_violation":
             return .policyViolation
