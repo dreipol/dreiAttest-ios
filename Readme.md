@@ -1,3 +1,5 @@
+# :no_entry: [DEPRECATED]
+
 # dreiAttest
 
 [![Maintainability](https://api.codeclimate.com/v1/badges/739700599784ebf30814/maintainability)](https://codeclimate.com/repos/6037772f371217014d007062/maintainability)
