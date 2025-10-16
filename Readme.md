@@ -1,5 +1,7 @@
 # :no_entry: [DEPRECATED]
 
+Use the [multiplatform library](https://github.com/dreipol/dreiAttest-android) instead
+
 # dreiAttest
 
 [![Maintainability](https://api.codeclimate.com/v1/badges/739700599784ebf30814/maintainability)](https://codeclimate.com/repos/6037772f371217014d007062/maintainability)
